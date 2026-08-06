@@ -43,3 +43,12 @@ test("defines the composited-swing workflow and reversible pipeline", async () =
   assert.match(source, /moveItem\(item, -1\)/);
   assert.match(source, /moveItem\(item, 1\)/);
 });
+
+test("defines persistent production jobs and authenticated callbacks", async () => {
+  const source = await readFile(new URL("../app/api/production/route.ts", import.meta.url), "utf8");
+  assert.match(source, /PRODUCTION_ENGINE_URL/);
+  assert.match(source, /PRODUCTION_ENGINE_TOKEN/);
+  assert.match(source, /job-callback/);
+  assert.match(source, /Unauthorized callback/);
+  assert.match(source, /render-preview/);
+});

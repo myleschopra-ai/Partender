@@ -38,3 +38,48 @@ export const mediaUploadParts = sqliteTable("media_upload_parts", {
 }, (table) => [
   primaryKey({ columns: [table.assetId, table.partNumber] }),
 ]);
+
+export const productionProjects = sqliteTable("production_projects", {
+  id: text("id").primaryKey(),
+  title: text("title").notNull(),
+  courseName: text("course_name").notNull().default(""),
+  roundDate: text("round_date").notNull().default(""),
+  status: text("status").notNull().default("source-footage"),
+  createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+});
+
+export const productionAssets = sqliteTable("production_assets", {
+  projectId: text("project_id").notNull().references(() => productionProjects.id, { onDelete: "cascade" }),
+  assetId: text("asset_id").notNull().references(() => mediaAssets.id, { onDelete: "cascade" }),
+  analysisStatus: text("analysis_status").notNull().default("not-requested"),
+  analysisJson: text("analysis_json"),
+  updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+}, (table) => [primaryKey({ columns: [table.projectId, table.assetId] })]);
+
+export const productionShots = sqliteTable("production_shots", {
+  id: text("id").primaryKey(),
+  projectId: text("project_id").notNull().references(() => productionProjects.id, { onDelete: "cascade" }),
+  hole: integer("hole").notNull(),
+  shotNumber: integer("shot_number").notNull(),
+  club: text("club").notNull(),
+  startPoint: text("start_point").notNull(),
+  endPoint: text("end_point").notNull(),
+  distanceYards: integer("distance_yards"),
+  assetId: text("asset_id").references(() => mediaAssets.id, { onDelete: "set null" }),
+  status: text("status").notNull().default("needs-match"),
+  createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+});
+
+export const productionJobs = sqliteTable("production_jobs", {
+  id: text("id").primaryKey(),
+  projectId: text("project_id").notNull().references(() => productionProjects.id, { onDelete: "cascade" }),
+  assetId: text("asset_id").references(() => mediaAssets.id, { onDelete: "set null" }),
+  kind: text("kind").notNull(),
+  status: text("status").notNull().default("queued"),
+  providerJobId: text("provider_job_id"),
+  outputUrl: text("output_url"),
+  error: text("error"),
+  createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+});

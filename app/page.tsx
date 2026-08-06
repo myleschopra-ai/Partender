@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import MediaLibrary from "./media-library";
+import ProductionEngine from "./production-engine";
 
 type View = "command" | "brand" | "studio" | "media" | "pipeline" | "calendar" | "analytics" | "audit";
 type ContentStatus = "inbox" | "develop" | "production" | "review" | "published";
@@ -269,6 +270,7 @@ export default function Home() {
                 <div className="engine-intro"><p className="eyebrow">Content creation engine</p><h3>Real swing. Virtual course. Data-driven flight.</h3><p>The upload library is live. Automated footage analysis, compositing, tracer generation and final rendering are the next connected build phase; this workflow does not claim a video has been generated until a playable render exists.</p><span>PRODUCTION ENGINE · IN BUILD</span></div>
                 <div className="engine-grid">{productionEngine.map((item, index) => <article key={item.title}><span>0{index + 1}</span><div><strong>{item.title}</strong><p>{item.copy}</p></div></article>)}</div>
               </div>
+              <ProductionEngine />
               <div className="panel spec-panel"><div><p className="eyebrow">Reference capture · v1</p><h3>Digital-twin source pack</h3><button className="inline-action" onClick={() => setActive("media")}>Open source-video library →</button></div><div className="spec-grid"><p><span>8</span><b>Swing clips</b><small>Locked camera · 4K/60 · full body</small></p><p><span>3</span><b>Movement clips</b><small>Walk · setup · reaction</small></p><p><span>12+</span><b>Appearance photos</b><small>Neutral light · all angles</small></p><p><span>1</span><b>Wardrobe lock</b><small>Full outfit · shoes · glove · hat</small></p></div></div>
             </section>
           ) : null}

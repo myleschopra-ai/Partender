@@ -14,6 +14,10 @@ The first flagship workflow, **Played, Not Filmed**, turns verified round data a
 - 8 MB multipart uploads with automatic retry and cancellation
 - Private video playback with HTTP range support
 - Footage categories and production notes
+- Persistent production projects, source-video assignments, and verified shot plans
+- Reversible production stages from source footage through publishing
+- External media-worker orchestration for footage analysis and preview/final rendering
+- Authenticated job callbacks with visible queued, processing, complete, and failed states
 - Calendar, analytics framework, and Instagram audit packet
 
 ## Storage model
@@ -35,6 +39,8 @@ app/media-library.tsx           Mobile upload queue and source library
 app/api/content/route.ts        Persistent content workflow
 app/api/media/route.ts          Multipart upload, listing, and playback API
 app/api/media/media-utils.ts    File validation, chunking, and range helpers
+app/api/production/route.ts     Production projects, shots, jobs, dispatch, and callbacks
+app/production-engine.tsx       Round-production workspace and job status UI
 db/schema.ts                    D1 content and media schema
 drizzle/                        Checked-in D1 migrations
 worker/index.ts                 Cloudflare Worker entry point
@@ -55,6 +61,15 @@ npm run dev
 ```
 
 The hosting manifest declares `DB` and `BUCKET` as the logical D1 and R2 bindings. The local Cloudflare runtime simulates both bindings.
+
+## Production media worker
+
+Partender deliberately orchestrates long-running video work instead of attempting it inside a Cloudflare request. Configure these deployment secrets to connect an external media worker:
+
+- `PRODUCTION_ENGINE_URL` — HTTPS endpoint that accepts analysis and render jobs.
+- `PRODUCTION_ENGINE_TOKEN` — shared bearer token used for dispatch and authenticated callbacks.
+
+The worker receives the Partender job id, job kind, project data, the private R2 object key for selected footage, and a callback URL. It must have separately authorized access to the same private media storage. It reports `processing`, `complete`, or `failed` to the callback and may include structured footage analysis or a private output URL. Do not expose the R2 bucket publicly.
 
 ## Verification
 
