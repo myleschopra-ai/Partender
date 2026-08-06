@@ -1,6 +1,6 @@
 import { and, desc, eq } from "drizzle-orm";
 import { ensureMediaSchema, ensureProductionSchema, getDb } from "../../../db";
-import { mediaAssets, productionAssets, productionJobs, productionProjects, productionShots } from "../../../db/schema";
+import { launchProfiles, mediaAssets, productionAssets, productionJobs, productionProjects, productionShots } from "../../../db/schema";
 
 export const dynamic = "force-dynamic";
 
@@ -23,18 +23,19 @@ export async function GET(request: Request) {
     await ensureProductionSchema();
     const db = await getDb();
     const projectId = new URL(request.url).searchParams.get("projectId");
-    const [projects, assets, config] = await Promise.all([
+    const [projects, assets, profiles, config] = await Promise.all([
       db.select().from(productionProjects).orderBy(desc(productionProjects.updatedAt)),
       db.select({ id: mediaAssets.id, fileName: mediaAssets.fileName, category: mediaAssets.category, notes: mediaAssets.notes }).from(mediaAssets).where(eq(mediaAssets.status, "ready")).orderBy(desc(mediaAssets.uploadedAt)),
+      db.select().from(launchProfiles).orderBy(desc(launchProfiles.createdAt)),
       engineConfig(),
     ]);
-    if (!projectId) return Response.json({ projects, assets, engineConnected: Boolean(config.url && config.token) });
+    if (!projectId) return Response.json({ projects, assets, profiles, engineConnected: Boolean(config.url && config.token) });
     const [linkedAssets, shots, jobs] = await Promise.all([
       db.select().from(productionAssets).where(eq(productionAssets.projectId, projectId)),
       db.select().from(productionShots).where(eq(productionShots.projectId, projectId)),
       db.select().from(productionJobs).where(eq(productionJobs.projectId, projectId)).orderBy(desc(productionJobs.createdAt)),
     ]);
-    return Response.json({ projects, assets, linkedAssets, shots, jobs, engineConnected: Boolean(config.url && config.token) });
+    return Response.json({ projects, assets, profiles, linkedAssets, shots, jobs, engineConnected: Boolean(config.url && config.token) });
   } catch (error) {
     return jsonError(error instanceof Error ? error.message : "Unable to open production engine", 500);
   }
@@ -56,6 +57,39 @@ export async function POST(request: Request) {
       return Response.json({ project: { ...project, status: "source-footage" } }, { status: 201 });
     }
 
+    if (action === "create-westfields-poc") {
+      const id = crypto.randomUUID();
+      const project = { id, title: "Westfields 16 · Driver proof", courseName: "Westfields Golf Club · Hole 16 · Boom Boom tees", roundDate: "" };
+      await db.insert(productionProjects).values(project);
+      await db.insert(productionShots).values({
+        id: crypto.randomUUID(), projectId: id, hole: 16, shotNumber: 1, club: "Driver",
+        startPoint: "Boom Boom tee", endPoint: "Right-center fairway · editable demonstration target",
+        distanceYards: null, dataSource: "synthetic-proof",
+        conditionsJson: JSON.stringify({ wind: "neutral placeholder", elevation: "neutral placeholder", shape: "modest right-to-left", holeYardage: 384, disclosure: "Simulated proof-of-concept flight; not an actual recorded Westfields shot." }),
+      });
+      return Response.json({ project: { ...project, status: "source-footage" } }, { status: 201 });
+    }
+
+    if (action === "add-launch-sample") {
+      const club = clean(body.club, 40);
+      if (!club) return jsonError("Club is required", 400);
+      const number = (value: unknown, multiplier = 1) => {
+        if (value === "" || value === null || value === undefined) return null;
+        const parsed = Number(value);
+        return Number.isFinite(parsed) ? Math.round(parsed * multiplier) : null;
+      };
+      const profile = {
+        id: crypto.randomUUID(), club, source: "MLM2PRO",
+        ballSpeedMph: number(body.ballSpeedMph), launchAngleTenths: number(body.launchAngle, 10),
+        launchDirectionTenths: number(body.launchDirection, 10), spinRpm: number(body.spinRpm),
+        spinAxisTenths: number(body.spinAxis, 10), carryYards: number(body.carryYards), apexFeet: number(body.apexFeet),
+        shotType: clean(body.shotType, 40),
+      };
+      if ([profile.ballSpeedMph, profile.launchAngleTenths, profile.spinRpm, profile.carryYards].every((value) => value === null)) return jsonError("Enter at least one MLM2PRO metric", 400);
+      await db.insert(launchProfiles).values(profile);
+      return Response.json({ profile }, { status: 201 });
+    }
+
     const projectId = clean(body.projectId, 80);
     if (!projectId) return jsonError("Project is required", 400);
     const [project] = await db.select().from(productionProjects).where(eq(productionProjects.id, projectId)).limit(1);
@@ -73,7 +107,7 @@ export async function POST(request: Request) {
       const hole = Number(body.hole); const shotNumber = Number(body.shotNumber); const distanceYards = body.distanceYards === "" ? null : Number(body.distanceYards);
       const club = clean(body.club, 40); const startPoint = clean(body.startPoint, 120); const endPoint = clean(body.endPoint, 120);
       if (!Number.isInteger(hole) || hole < 1 || hole > 18 || !Number.isInteger(shotNumber) || shotNumber < 1 || !club || !startPoint || !endPoint) return jsonError("Enter a valid hole, shot, club, beginning point and end point", 400);
-      const shot = { id: crypto.randomUUID(), projectId, hole, shotNumber, club, startPoint, endPoint, distanceYards: Number.isFinite(distanceYards) ? distanceYards : null };
+      const shot = { id: crypto.randomUUID(), projectId, hole, shotNumber, club, startPoint, endPoint, distanceYards: Number.isFinite(distanceYards) ? distanceYards : null, dataSource: clean(body.dataSource, 30) || "verified", conditionsJson: clean(body.conditionsJson, 2000) || null };
       await db.insert(productionShots).values(shot);
       return Response.json({ shot }, { status: 201 });
     }

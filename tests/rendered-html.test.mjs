@@ -52,3 +52,14 @@ test("defines persistent production jobs and authenticated callbacks", async () 
   assert.match(source, /Unauthorized callback/);
   assert.match(source, /render-preview/);
 });
+
+test("defines the Westfields 16 proof and MLM2PRO intake", async () => {
+  const api = await readFile(new URL("../app/api/production/route.ts", import.meta.url), "utf8");
+  const ui = await readFile(new URL("../app/production-engine.tsx", import.meta.url), "utf8");
+  assert.match(api, /Westfields Golf Club · Hole 16 · Boom Boom tees/);
+  assert.match(api, /synthetic-proof/);
+  assert.match(api, /Simulated proof-of-concept flight/);
+  assert.match(api, /add-launch-sample/);
+  assert.match(ui, /SIMULATED PROOF INPUT/);
+  assert.match(ui, /MLM2PRO launch library/);
+});

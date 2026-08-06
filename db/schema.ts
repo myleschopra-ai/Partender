@@ -66,8 +66,25 @@ export const productionShots = sqliteTable("production_shots", {
   startPoint: text("start_point").notNull(),
   endPoint: text("end_point").notNull(),
   distanceYards: integer("distance_yards"),
+  dataSource: text("data_source").notNull().default("verified"),
+  conditionsJson: text("conditions_json"),
   assetId: text("asset_id").references(() => mediaAssets.id, { onDelete: "set null" }),
   status: text("status").notNull().default("needs-match"),
+  createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+});
+
+export const launchProfiles = sqliteTable("launch_profiles", {
+  id: text("id").primaryKey(),
+  club: text("club").notNull(),
+  source: text("source").notNull().default("MLM2PRO"),
+  ballSpeedMph: integer("ball_speed_mph"),
+  launchAngleTenths: integer("launch_angle_tenths"),
+  launchDirectionTenths: integer("launch_direction_tenths"),
+  spinRpm: integer("spin_rpm"),
+  spinAxisTenths: integer("spin_axis_tenths"),
+  carryYards: integer("carry_yards"),
+  apexFeet: integer("apex_feet"),
+  shotType: text("shot_type").notNull().default(""),
   createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
 });
 

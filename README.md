@@ -18,6 +18,8 @@ The first flagship workflow, **Played, Not Filmed**, turns verified round data a
 - Reversible production stages from source footage through publishing
 - External media-worker orchestration for footage analysis and preview/final rendering
 - Authenticated job callbacks with visible queued, processing, complete, and failed states
+- A Westfields No. 16 Boom Boom tee proof template with explicit synthetic-data labeling
+- Manual MLM2PRO launch-sample intake for later player-calibrated trajectory fitting
 - Calendar, analytics framework, and Instagram audit packet
 
 ## Storage model
