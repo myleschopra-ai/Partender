@@ -36,12 +36,22 @@ const launchGates = [
 ];
 
 const productionStages = [
-  { n: "01", title: "Round data", copy: "Verify every shot, lie, club and penalty in Arccos.", state: "ready" },
-  { n: "02", title: "Story cut", copy: "Choose six to eight decisions that explain the round.", state: "next" },
-  { n: "03", title: "Course twin", copy: "Build the photoreal terrain and broadcast camera paths.", state: "queued" },
-  { n: "04", title: "Player twin", copy: "Map your approved reference swings to each shot type.", state: "queued" },
-  { n: "05", title: "Broadcast edit", copy: "Add tracer, yardages, score bug, VO and sound design.", state: "queued" },
-  { n: "06", title: "Publish set", copy: "Master 9:16, 16:9 and carousel versions with disclosure.", state: "queued" },
+  { n: "01", title: "Source footage", copy: "Review, describe and tag your real uploaded swings by club, shot type and camera angle.", state: "ready" },
+  { n: "02", title: "Round data", copy: "Verify each Arccos club, lie, beginning point, end point and result.", state: "next" },
+  { n: "03", title: "Shot match", copy: "Match an approved real swing clip to each selected Arccos shot.", state: "queued" },
+  { n: "04", title: "Virtual course", copy: "Create enhanced course imagery and GroundsView-style broadcast camera paths.", state: "queued" },
+  { n: "05", title: "Swing composite", copy: "Mask the original background and place your real swing into the virtual scene.", state: "queued" },
+  { n: "06", title: "Flight simulation", copy: "Simulate ball flight from the shot data and add tracer, club and distance graphics.", state: "queued" },
+  { n: "07", title: "Editor and render", copy: "Assemble scenes, narration, sound and captions into reviewable social cuts.", state: "queued" },
+  { n: "08", title: "Review and publish", copy: "Approve, request revisions or return to any prior stage before export.", state: "queued" },
+];
+
+const productionEngine = [
+  { title: "Footage intelligence", copy: "View and describe uploads; detect club family, shot type, angle, impact window and masking quality." },
+  { title: "Arccos shot builder", copy: "Turn verified beginning and end points, club and lie into a shot-by-shot scene plan." },
+  { title: "Virtual course composer", copy: "Build enhanced course views, place the real swing footage and select broadcast camera movement." },
+  { title: "Tracer and graphics", copy: "Render simulated flight, tracer, club, distance, score and hole information from verified data." },
+  { title: "Video editor", copy: "Preview, reorder, trim, replace, revise and export vertical or widescreen versions." },
 ];
 
 const series = [
@@ -137,9 +147,10 @@ export default function Home() {
     }
   }
 
-  async function advanceItem(item: ContentItem) {
+  async function moveItem(item: ContentItem, direction: -1 | 1) {
     const sequence: ContentStatus[] = ["inbox", "develop", "production", "review", "published"];
-    const next = sequence[Math.min(sequence.indexOf(item.status) + 1, sequence.length - 1)];
+    const nextIndex = Math.max(0, Math.min(sequence.indexOf(item.status) + direction, sequence.length - 1));
+    const next = sequence[nextIndex];
     if (next === item.status) return;
     setContentItems((current) => current.map((row) => row.id === item.id ? { ...row, status: next } : row));
     if (item.id < 0) return;
@@ -249,10 +260,14 @@ export default function Home() {
 
           {active === "studio" ? (
             <section className="page-section">
-              <SectionHeading eyebrow="Flagship format · Episode 001" title="Played, Not Filmed" copy="A real round reconstructed from verified shot data and clearly disclosed AI-assisted visuals. Build a nine-hole proof first; scale only after the result looks believable and the data-use path is cleared." />
+              <SectionHeading eyebrow="Flagship format · Episode 001" title="Played, Not Filmed" copy="Your real uploaded swing footage composited into an enhanced virtual-course presentation, with each scene driven by verified Arccos shot data and clearly disclosed as an AI-assisted recreation. Build a nine-hole proof first." />
               <div className="studio-layout">
                 <div className="stage-list">{productionStages.map((stage, index) => <article className={`stage-card ${stage.state}`} key={stage.n}><div className="stage-number">{stage.n}</div><div><p>{stage.title}</p><h3>{stage.copy}</h3></div><div className="stage-state"><StatusDot status={stage.state} />{stage.state}</div>{index < productionStages.length - 1 ? <span className="stage-line" /> : null}</article>)}</div>
                 <aside className="studio-brief"><p className="eyebrow">Production brief</p><h3>The viewer should feel like they followed you for nine holes—not watched a tech demo.</h3><div className="brief-row"><span>Run time</span><strong>4–6 min master</strong></div><div className="brief-row"><span>Short cut</span><strong>45–75 sec</strong></div><div className="brief-row"><span>Shots shown</span><strong>6–8 decisions</strong></div><div className="brief-row"><span>Disclosure</span><strong>AI-assisted recreation</strong></div><div className="rights-warning"><strong>Rights gate</strong><p>Standard Arccos terms authorize personal, non-commercial sharing of selected screenshots. Partnership or monetized use should use the licensed API or written permission.</p><a href="https://www.arccosgolf.com/blogs/community/clippd-to-become-first-platform-to-seamlessly-integrate-arccos-on-course-data" target="_blank" rel="noreferrer">Official API overview ↗</a></div></aside>
+              </div>
+              <div className="panel engine-panel">
+                <div className="engine-intro"><p className="eyebrow">Content creation engine</p><h3>Real swing. Virtual course. Data-driven flight.</h3><p>The upload library is live. Automated footage analysis, compositing, tracer generation and final rendering are the next connected build phase; this workflow does not claim a video has been generated until a playable render exists.</p><span>PRODUCTION ENGINE · IN BUILD</span></div>
+                <div className="engine-grid">{productionEngine.map((item, index) => <article key={item.title}><span>0{index + 1}</span><div><strong>{item.title}</strong><p>{item.copy}</p></div></article>)}</div>
               </div>
               <div className="panel spec-panel"><div><p className="eyebrow">Reference capture · v1</p><h3>Digital-twin source pack</h3><button className="inline-action" onClick={() => setActive("media")}>Open source-video library →</button></div><div className="spec-grid"><p><span>8</span><b>Swing clips</b><small>Locked camera · 4K/60 · full body</small></p><p><span>3</span><b>Movement clips</b><small>Walk · setup · reaction</small></p><p><span>12+</span><b>Appearance photos</b><small>Neutral light · all angles</small></p><p><span>1</span><b>Wardrobe lock</b><small>Full outfit · shoes · glove · hat</small></p></div></div>
             </section>
@@ -262,12 +277,12 @@ export default function Home() {
 
           {active === "pipeline" ? (
             <section className="page-section">
-              <SectionHeading eyebrow="Content operating system" title="One idea, one owner, one next action." copy="The pipeline protects quality and keeps content from living as scattered notes. Publishing remains a deliberate manual approval." />
+              <SectionHeading eyebrow="Content operating system" title="Move forward, revise or reopen." copy="Production is iterative. Move work in either direction without losing it; publishing remains a deliberate manual approval." />
               <div className="pipeline-status"><span className={`storage-light ${storageMode}`} />{storageMode === "persistent" ? "Changes save across sessions" : storageMode === "loading" ? "Opening workspace…" : "Showing demo data; changes may not persist"}</div>
               <div className="kanban">
                 {pipelineColumns.map((column) => {
                   const items = contentItems.filter((item) => item.status === column.id).sort((a,b) => a.priority - b.priority);
-                  return <div className="kanban-col" key={column.id}><div className="kanban-head"><span>{column.title}</span><b>{items.length}</b></div>{items.map((item) => <article className="content-card" key={item.id}><span>{item.pillar.toUpperCase()}</span><h3>{item.title}</h3><p>{item.channel} · {item.format}</p><small>Next: {item.nextAction}</small>{column.id !== "published" ? <button className="advance-card" onClick={() => advanceItem(item)}>Move forward →</button> : <b className="published-mark">Published ✓</b>}</article>)}{column.id === "inbox" ? <button className="add-card" onClick={() => setCaptureOpen(true)}>＋ Add idea</button> : null}</div>;
+                  return <div className="kanban-col" key={column.id}><div className="kanban-head"><span>{column.title}</span><b>{items.length}</b></div>{items.map((item) => <article className="content-card" key={item.id}><span>{item.pillar.toUpperCase()}</span><h3>{item.title}</h3><p>{item.channel} · {item.format}</p><small>Next: {item.nextAction}</small><div className="card-stage-actions">{column.id !== "inbox" ? <button className="back-card" onClick={() => moveItem(item, -1)}>← Previous</button> : null}{column.id !== "published" ? <button className="advance-card" onClick={() => moveItem(item, 1)}>Next →</button> : <b className="published-mark">Published ✓</b>}</div></article>)}{column.id === "inbox" ? <button className="add-card" onClick={() => setCaptureOpen(true)}>＋ Add idea</button> : null}</div>;
                 })}
               </div>
             </section>
