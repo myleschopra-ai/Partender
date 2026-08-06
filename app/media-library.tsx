@@ -68,6 +68,7 @@ export default function MediaLibrary() {
   const [jobs, setJobs] = useState<UploadJob[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [dragActive, setDragActive] = useState(false);
   const [libraryError, setLibraryError] = useState("");
 
   async function refreshAssets() {
@@ -200,6 +201,12 @@ export default function MediaLibrary() {
     if (inputRef.current) inputRef.current.value = "";
   }
 
+  function handleDrop(event: React.DragEvent<HTMLLabelElement>) {
+    event.preventDefault();
+    setDragActive(false);
+    if (!uploading) void handleSelection(event.dataTransfer.files);
+  }
+
   function cancelUpload() {
     cancelRequested.current = true;
     requestController.current?.abort();
@@ -212,9 +219,9 @@ export default function MediaLibrary() {
     <section className="page-section media-page">
       <header className="section-heading media-heading">
         <div>
-          <p className="eyebrow">Mobile footage intake</p>
-          <h2>Your source-video library.</h2>
-          <p className="section-copy">Upload original clips from your phone once, label what they are for, and keep production-ready sources with the Partender workflow.</p>
+          <p className="eyebrow">Source media intake</p>
+          <h2>Your production-source library.</h2>
+          <p className="section-copy">Add video or course-reference files from any device, label what they are for, and keep production-ready sources with the Partender workflow.</p>
         </div>
         <span className="media-count"><b>{readyAssets.length}</b> ready videos</span>
       </header>
@@ -230,8 +237,8 @@ export default function MediaLibrary() {
             <label><span>Production note <i>optional</i></span><textarea value={notes} onChange={(event) => setNotes(event.target.value)} maxLength={500} disabled={uploading} placeholder="Example: Driver, down-the-line, navy shirt · Episode 001" /></label>
           </div>
           <input id="partender-video-upload" ref={inputRef} className="visually-hidden" type="file" accept="video/mp4,video/quicktime,video/x-m4v,video/webm,video/mpeg,video/3gpp,image/jpeg,image/png,image/webp,image/heic,image/heif,.mp4,.mov,.m4v,.webm,.mpeg,.mpg,.3gp,.jpg,.jpeg,.png,.webp,.heic,.heif" multiple disabled={uploading} onChange={(event) => void handleSelection(event.target.files)} />
-          <label className={`phone-upload-button${uploading ? " disabled" : ""}`} htmlFor="partender-video-upload" aria-disabled={uploading}>
-            <span aria-hidden="true">↑</span><strong>{uploading ? "Uploading…" : "Choose video or course image"}</strong><small>Video, JPG, PNG, WebP or iPhone HEIC</small>
+          <label className={`upload-dropzone${dragActive ? " drag-active" : ""}${uploading ? " disabled" : ""}`} htmlFor="partender-video-upload" aria-disabled={uploading} onDragEnter={(event) => { event.preventDefault(); if (!uploading) setDragActive(true); }} onDragOver={(event) => event.preventDefault()} onDragLeave={(event) => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setDragActive(false); }} onDrop={handleDrop}>
+            <span aria-hidden="true">↑</span><strong>{uploading ? "Uploading…" : dragActive ? "Drop files to upload" : "Upload source files"}</strong><small>Drag and drop here, or click to browse · video, JPG, PNG, WebP, HEIC</small>
           </label>
           <div className="upload-assurance"><span>8 MB resumable parts</span><span>Automatic retry</span><span>Original quality preserved</span></div>
 
