@@ -10,6 +10,8 @@ const videoTypes = new Set([
   "video/3gpp",
 ]);
 
+const imageTypes = new Set(["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"]);
+
 const extensionTypes: Record<string, string> = {
   mp4: "video/mp4",
   mov: "video/quicktime",
@@ -18,6 +20,12 @@ const extensionTypes: Record<string, string> = {
   mpeg: "video/mpeg",
   mpg: "video/mpeg",
   "3gp": "video/3gpp",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  png: "image/png",
+  webp: "image/webp",
+  heic: "image/heic",
+  heif: "image/heif",
 };
 
 export const mediaCategories = new Set([
@@ -27,6 +35,7 @@ export const mediaCategories = new Set([
   "equipment-b-roll",
   "voiceover",
   "other",
+  "course-reference",
 ]);
 
 export function normalizeFileName(input: string) {
@@ -43,7 +52,7 @@ export function normalizeFileName(input: string) {
 
 export function resolveVideoType(fileName: string, suppliedType?: string) {
   const normalizedType = suppliedType?.toLowerCase().split(";")[0].trim() ?? "";
-  if (videoTypes.has(normalizedType)) return normalizedType;
+  if (videoTypes.has(normalizedType) || imageTypes.has(normalizedType)) return normalizedType;
   const extension = fileName.split(".").pop()?.toLowerCase() ?? "";
   return extensionTypes[extension] ?? null;
 }

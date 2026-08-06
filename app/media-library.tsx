@@ -25,6 +25,7 @@ type UploadJob = {
 
 const categories = [
   ["reference-swing", "Reference swing"],
+  ["course-reference", "Course / hole reference"],
   ["round-footage", "Round footage"],
   ["tournament-operations", "Tournament operations"],
   ["equipment-b-roll", "Equipment / B-roll"],
@@ -228,9 +229,9 @@ export default function MediaLibrary() {
             <label><span>Footage type</span><select value={category} onChange={(event) => setCategory(event.target.value)} disabled={uploading}>{categories.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
             <label><span>Production note <i>optional</i></span><textarea value={notes} onChange={(event) => setNotes(event.target.value)} maxLength={500} disabled={uploading} placeholder="Example: Driver, down-the-line, navy shirt · Episode 001" /></label>
           </div>
-          <input id="partender-video-upload" ref={inputRef} className="visually-hidden" type="file" accept="video/mp4,video/quicktime,video/x-m4v,video/webm,video/mpeg,video/3gpp,.mp4,.mov,.m4v,.webm,.mpeg,.mpg,.3gp" multiple disabled={uploading} onChange={(event) => void handleSelection(event.target.files)} />
+          <input id="partender-video-upload" ref={inputRef} className="visually-hidden" type="file" accept="video/mp4,video/quicktime,video/x-m4v,video/webm,video/mpeg,video/3gpp,image/jpeg,image/png,image/webp,image/heic,image/heif,.mp4,.mov,.m4v,.webm,.mpeg,.mpg,.3gp,.jpg,.jpeg,.png,.webp,.heic,.heif" multiple disabled={uploading} onChange={(event) => void handleSelection(event.target.files)} />
           <label className={`phone-upload-button${uploading ? " disabled" : ""}`} htmlFor="partender-video-upload" aria-disabled={uploading}>
-            <span aria-hidden="true">↑</span><strong>{uploading ? "Uploading…" : "Choose videos from phone"}</strong><small>MP4 · MOV · M4V · WebM · up to 5 GB each</small>
+            <span aria-hidden="true">↑</span><strong>{uploading ? "Uploading…" : "Choose video or course image"}</strong><small>Video, JPG, PNG, WebP or iPhone HEIC</small>
           </label>
           <div className="upload-assurance"><span>8 MB resumable parts</span><span>Automatic retry</span><span>Original quality preserved</span></div>
 
@@ -248,7 +249,7 @@ export default function MediaLibrary() {
       <div className="library-heading"><div><p className="eyebrow">Production sources</p><h3>Ready to review and download</h3></div><button onClick={() => void refreshAssets()} disabled={loading}>{loading ? "Loading…" : "Refresh library"}</button></div>
       {libraryError ? <div className="library-error" role="alert"><strong>Media storage needs attention.</strong><span>{libraryError}</span></div> : null}
       {!loading && !libraryError && readyAssets.length === 0 ? <div className="empty-library"><span>◉</span><h3>No source videos yet.</h3><p>Your first upload will appear here with its original quality and production label intact.</p></div> : null}
-      {readyAssets.length ? <div className="media-library-grid">{readyAssets.map((asset) => <article className="media-card" key={asset.id}><div className="video-frame"><video controls playsInline preload="metadata" src={asset.streamUrl ?? undefined}>Your browser cannot preview this video.</video><span>ORIGINAL</span></div><div className="media-card-body"><div className="media-card-meta"><span>{categoryLabels[asset.category] ?? "Other footage"}</span><i>Ready</i></div><h3 title={asset.fileName}>{asset.fileName}</h3>{asset.notes ? <p>{asset.notes}</p> : <p className="muted-note">No production note</p>}<div className="media-card-footer"><small>{formatBytes(asset.byteSize)} · {formatDate(asset.uploadedAt)}</small>{asset.streamUrl ? <a href={asset.streamUrl} download={asset.fileName}>Download source ↓</a> : null}</div></div></article>)}</div> : null}
+      {readyAssets.length ? <div className="media-library-grid">{readyAssets.map((asset) => <article className="media-card" key={asset.id}><div className="video-frame">{asset.contentType.startsWith("image/") ? <img src={asset.streamUrl ?? undefined} alt={`Preview of ${asset.fileName}`} /> : <video controls playsInline muted preload="metadata" src={asset.streamUrl ? `${asset.streamUrl}#t=0.1` : undefined}>Your browser cannot preview this video.</video>}<span>{asset.contentType.startsWith("image/") ? "COURSE REFERENCE" : "FRAME PREVIEW"}</span></div><div className="media-card-body"><div className="media-card-meta"><span>{categoryLabels[asset.category] ?? "Other footage"}</span><i>Ready</i></div><h3 title={asset.fileName}>{asset.fileName}</h3>{asset.notes ? <p>{asset.notes}</p> : <p className="muted-note">No production note</p>}<div className="media-card-footer"><small>{formatBytes(asset.byteSize)} · {formatDate(asset.uploadedAt)}</small>{asset.streamUrl ? <a href={asset.streamUrl} download={asset.fileName}>Download source ↓</a> : null}</div></div></article>)}</div> : null}
       {incompleteAssets.length ? <div className="incomplete-note"><strong>{incompleteAssets.length} incomplete upload{incompleteAssets.length === 1 ? "" : "s"}</strong><span>Interrupted uploads are never shown as production-ready. Re-select the original video to upload a clean copy.</span></div> : null}
     </section>
   );

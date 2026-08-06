@@ -14,6 +14,8 @@ import {
 test("normalizes unsafe mobile filenames without losing the extension", () => {
   assert.equal(normalizeFileName("../../Driver Swing (DTL) #1.MOV"), "Driver-Swing-DTL-1.MOV");
   assert.equal(resolveVideoType("Driver-Swing.MOV", ""), "video/quicktime");
+  assert.equal(resolveVideoType("Westfields-16.png", "image/png"), "image/png");
+  assert.equal(resolveVideoType("Arccos-hole.HEIC", ""), "image/heic");
   assert.equal(resolveVideoType("notes.pdf", "application/pdf"), null);
 });
 

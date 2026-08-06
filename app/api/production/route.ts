@@ -25,17 +25,18 @@ export async function GET(request: Request) {
     const projectId = new URL(request.url).searchParams.get("projectId");
     const [projects, assets, profiles, config] = await Promise.all([
       db.select().from(productionProjects).orderBy(desc(productionProjects.updatedAt)),
-      db.select({ id: mediaAssets.id, fileName: mediaAssets.fileName, category: mediaAssets.category, notes: mediaAssets.notes }).from(mediaAssets).where(eq(mediaAssets.status, "ready")).orderBy(desc(mediaAssets.uploadedAt)),
+      db.select({ id: mediaAssets.id, fileName: mediaAssets.fileName, category: mediaAssets.category, notes: mediaAssets.notes, contentType: mediaAssets.contentType }).from(mediaAssets).where(eq(mediaAssets.status, "ready")).orderBy(desc(mediaAssets.uploadedAt)),
       db.select().from(launchProfiles).orderBy(desc(launchProfiles.createdAt)),
       engineConfig(),
     ]);
-    if (!projectId) return Response.json({ projects, assets, profiles, engineConnected: Boolean(config.url && config.token) });
+    const clientAssets = assets.map((asset) => ({ ...asset, streamUrl: `/api/media?id=${encodeURIComponent(asset.id)}` }));
+    if (!projectId) return Response.json({ projects, assets: clientAssets, profiles, engineConnected: Boolean(config.url && config.token) });
     const [linkedAssets, shots, jobs] = await Promise.all([
       db.select().from(productionAssets).where(eq(productionAssets.projectId, projectId)),
       db.select().from(productionShots).where(eq(productionShots.projectId, projectId)),
       db.select().from(productionJobs).where(eq(productionJobs.projectId, projectId)).orderBy(desc(productionJobs.createdAt)),
     ]);
-    return Response.json({ projects, assets, profiles, linkedAssets, shots, jobs, engineConnected: Boolean(config.url && config.token) });
+    return Response.json({ projects, assets: clientAssets, profiles, linkedAssets, shots, jobs, engineConnected: Boolean(config.url && config.token) });
   } catch (error) {
     return jsonError(error instanceof Error ? error.message : "Unable to open production engine", 500);
   }

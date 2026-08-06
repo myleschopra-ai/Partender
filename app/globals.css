@@ -229,7 +229,20 @@ h1, h2, h3, p { text-wrap: pretty; }
 .source-pick-list article { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px; border-radius: 8px; background: #f4f1e9; }
 .source-pick-list article div { min-width: 0; }.source-pick-list strong, .source-pick-list small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .source-pick-list strong { font-size: 8px; }.source-pick-list small { margin-top: 4px; color: #85887f; font-size: 7px; }.source-pick-list button { flex: 0 0 auto; padding: 7px 9px; }
-.shot-form { display: grid; grid-template-columns: 55px 55px 1fr; gap: 7px; }.shot-form button { min-height: 38px; }.shot-list { margin-top: 12px; }
+.source-pick-list.visual article { display: grid; grid-template-columns: 86px minmax(0,1fr) auto; }
+.source-pick-list.visual video { width: 86px; aspect-ratio: 16 / 9; border-radius: 6px; background: #102b22; object-fit: cover; }
+.source-file-name { opacity: .72; }
+.shot-form { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; }
+.shot-form label { display: grid; gap: 5px; color: #6f746c; font-size: 7px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; }
+.shot-form button { min-height: 38px; grid-column: 1 / -1; }.shot-list { margin-top: 12px; }
+.course-reference-block { display: grid; gap: 9px; margin-bottom: 15px; padding: 11px; border: 1px solid #d7d2c6; border-radius: 9px; background: #f5f2e9; }
+.course-reference-block > div:first-child strong, .course-reference-block > div:first-child small { display: block; }
+.course-reference-block > div:first-child strong { font-size: 9px; }.course-reference-block > div:first-child small, .course-reference-block > p { margin: 4px 0 0; color: #777d74; font-size: 7px; line-height: 1.45; }
+.course-reference-list { display: grid; gap: 7px; }
+.course-reference-list article { display: grid; grid-template-columns: 74px minmax(0,1fr) auto; align-items: center; gap: 8px; }
+.course-reference-list img { width: 74px; aspect-ratio: 16 / 9; border-radius: 5px; background: #102b22; object-fit: cover; }
+.course-reference-list span { overflow: hidden; font-size: 7px; text-overflow: ellipsis; white-space: nowrap; }
+.course-reference-list button { padding: 6px 8px; border: 0; border-radius: 6px; background: var(--green); color: white; font-size: 7px; font-weight: 900; }
 .shot-list article { display: grid; grid-template-columns: 55px 70px 1fr; gap: 8px; align-items: center; padding: 9px 10px; border-top: 1px solid var(--line); font-size: 8px; }.shot-list small { color: #7c8078; }
 .shot-list article.synthetic { grid-template-columns: 55px 70px 1fr auto; background: #faf2df; }.shot-list em { color: #8a682d; font-size: 6px; font-style: normal; font-weight: 900; letter-spacing: .06em; }
 .launch-profile-panel { position: relative; display: grid; grid-template-columns: .7fr 1.3fr; gap: 18px; margin-top: 16px; padding: 18px; border: 1px solid var(--line); border-radius: 11px; }.launch-profile-panel h4 { margin: 6px 0; font: 500 18px Georgia, serif; }.launch-profile-panel p:not(.eyebrow) { margin: 0; color: #777b73; font-size: 8px; line-height: 1.5; }.launch-form { display: grid; grid-template-columns: repeat(4,1fr); gap: 7px; }.launch-form input { min-width: 0; min-height: 36px; padding: 8px; border: 1px solid #cbc8be; border-radius: 7px; background: #fbfaf5; font-size: 8px; }.launch-form button { border: 0; border-radius: 7px; background: var(--green); color: white; font-size: 8px; font-weight: 900; cursor: pointer; }.sample-count { position: absolute; left: 18px; bottom: 15px; color: var(--green-2); font-size: 7px; font-weight: 900; }
@@ -291,7 +304,7 @@ h1, h2, h3, p { text-wrap: pretty; }
 .media-library-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 15px; }
 .media-card { min-width: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 13px; background: var(--surface); box-shadow: 0 9px 28px rgba(32,44,38,.04); }
 .video-frame { position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: #0c2019; }
-.video-frame video { width: 100%; height: 100%; display: block; object-fit: contain; }
+.video-frame video, .video-frame img { width: 100%; height: 100%; display: block; object-fit: contain; }
 .video-frame > span { position: absolute; top: 9px; left: 9px; padding: 5px 7px; border-radius: 10px; background: rgba(10,28,21,.75); color: #eef4f0; font-size: 6px; font-weight: 900; letter-spacing: .12em; pointer-events: none; }
 .media-card-body { padding: 16px; }
 .media-card-meta { display: flex; justify-content: space-between; gap: 12px; }

@@ -120,7 +120,7 @@ export async function POST(request: Request) {
       const contentType = resolveVideoType(fileName, body.contentType);
       const category = body.category?.trim() ?? "reference-swing";
       const notes = body.notes?.trim().slice(0, 500) ?? "";
-      if (!contentType) return jsonError("Choose an MP4, MOV, M4V, WebM, MPEG, or 3GP video", 415);
+      if (!contentType) return jsonError("Choose a supported video or a JPG, PNG, WebP, HEIC, or HEIF course image", 415);
       if (!Number.isSafeInteger(byteSize) || byteSize < 1 || byteSize > MAX_MEDIA_SIZE) return jsonError("Video must be between 1 byte and 5 GB", 400);
       if (!mediaCategories.has(category)) return jsonError("Choose a valid footage category", 400);
 
