@@ -18,3 +18,7 @@ This folder contains the Putting Lab v0.4 **standalone HTML** build. Open `index
 This is a **nested application** inside the existing Partender repository, so merging this branch will NOT by itself publish it at `partendinglab.myleschopra.workers.dev`. The Cloudflare Worker build must be configured to deploy this folder or (preferably) use a dedicated repository, without overwriting the existing Partender app. Verify Cloudflare build configuration and target before merging.
 
 Release date: October 2026. Browser simulation only; real-device validation pending.
+
+## Deployment trigger
+
+Cloudflare production build requested after connecting this branch and setting the root directory to `putting-lab` (2026-10-20). This commit contains no changes to application behavior.
