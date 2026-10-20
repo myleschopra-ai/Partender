@@ -55,6 +55,31 @@
 .auto-clip-actions small{display:block;width:100%;color:#c7d1b9}
 @media(max-width:700px){.auto-clip-actions button{flex:1 1 140px}.smart-capture{margin:8px 0}}
 
+/* v0.6 touch-safe, auto-first video review */
+#annotationAssist{background:#102119;border:1px solid #456145;border-radius:11px;padding:14px;margin-top:12px}
+#annotationAssist h3{font-size:15px;margin:0 0 5px}#annotationAssist p{margin:0 0 9px;font-size:12px}
+.assist-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:9px 0}
+.assist-status{display:block;background:#162e23;border-left:3px solid #a5e673;border-radius:4px;color:#e4f1e1;padding:9px;font-size:12px;line-height:1.5;min-height:35px}
+.assist-choices{display:flex;gap:6px;flex-wrap:wrap;margin:9px 0}.assist-choices button{padding:10px 13px;background:#1c3225;color:#d9edd7;border:1px solid #527454;border-radius:8px;font-size:12px}.assist-choices button.active{background:#426138;border-color:#bbf487;color:#fff}
+#assistProposals{padding:9px 10px;background:#172b20;border:1px solid #405a40;border-radius:7px;display:none;line-height:1.6;font-size:12px;color:#d8ecd6;margin:9px 0}
+#assistProposals.visible{display:block}
+#assistPreview button{padding:8px 10px;margin:5px 8px 0 0;border-radius:7px;border:1px solid #527454;background:#263d2c;color:#edf9e9}
+#assistPreview button.primary{background:#a7e875;color:#132015}
+#assistSelection{font-size:11px;color:#c4d5c2;min-height:20px;line-height:1.5}
+#annotationAssist button:disabled{opacity:.45}
+#annotationAssist .quiet{color:#9eaf9d;font-size:11px}
+#videoShell.automatic-inspect canvas{pointer-events:auto;touch-action:pan-x pan-y;cursor:default}
+#videoShell.automatic-inspect.edit-drag canvas{touch-action:none;cursor:grab}
+#videoShell.automatic-inspect.place-mode canvas{touch-action:none;cursor:crosshair}
+#reviewVideo,#videoShell canvas{transform-origin:50% 50%;transition:none}
+#annotationAssist .assist-zoom{display:flex;gap:7px;align-items:center}
+#annotationAssist .assist-zoom button{min-width:47px}
+#annotationAssist .assist-zoom button.active{background:#456c39;border-color:#c1ec96}
+#annotationAssist .assist-small{color:#edc887;font-size:11px}
+@media(max-width:700px){#annotationAssist{padding:11px 9px}#annotationAssist button{min-height:41px}.assist-row .primary{flex:1}.assist-choices button{flex:1;min-width:85px}}
+
+.assist-advanced{border:1px solid #3c543f;background:#17271e;border-radius:12px;overflow:hidden}.assist-advanced summary{padding:15px;color:#daf1d0;font-size:13px;font-weight:700;cursor:pointer;list-style:none}.assist-advanced summary::after{content:'⌄';float:right}.assist-advanced[open] summary::after{content:'⌃'}.assist-advanced summary::-webkit-details-marker{display:none}.assist-advanced .panel{margin:0;border:0;border-top:1px solid #3c543f;border-radius:0;box-shadow:none}
+
 </style>
 
   
@@ -77,7 +102,7 @@
   <main class="main">
     <header class="topbar"><div class="mobile-brand"><span class="brand-logo">◎</span> PUTTING<span class="lime">/</span>LAB</div><div class="topbar-right"><span class="secure">● Private workspace</span><span class="avatar">PL</span></div></header>
     <section id="tab-studio" class="tab active" aria-label="Stroke studio">
-      <div class="page-heading"><div><div class="eyebrow">STROKE ANALYSIS / WORKSPACE 01</div><h1>Stroke studio<span class="lime">.</span></h1><p>Capture. Review. Measure. Improve.</p></div><span class="version-pill">AUTO-IMPACT BETA V0.5</span></div>
+      <div class="page-heading"><div><div class="eyebrow">STROKE ANALYSIS / WORKSPACE 01</div><h1>Stroke studio<span class="lime">.</span></h1><p>Capture. Review. Measure. Improve.</p></div><span class="version-pill">AUTO-ANNOTATE BETA V0.6</span></div>
       <div class="studio-layout">
         <div class="studio-main">
           <div class="panel camera-panel">
@@ -96,7 +121,18 @@
             <div class="review-workflow" id="reviewWorkflow"><div class="review-guide"><strong>① Scrub video → ② Step frames → ③ Mark moment</strong><span>Timing controls stay right under the video.</span></div><div class="transport" id="transport"><div class="transport-top"><span id="currentTime">00:00.000</span><input id="seekBar" type="range" min="0" max="1000" value="0" step="1" aria-label="Video timeline" disabled/><span id="durationTime">00:00.000</span></div><div class="transport-bottom"><button id="backBtn" title="One frame backward" disabled>−1 FR</button><button id="playBtn" class="play-btn" disabled>▶ Play</button><button id="nextBtn" title="One frame forward" disabled>+1 FR</button><label>Frame rate <select id="fps"><option value="30">30</option><option value="24">24</option><option value="60">60</option><option value="120">120</option><option value="240">240</option></select> fps</label><span class="hint">Adjust to source FPS for stepping</span></div></div><div class="inline-timing-label">MARK CURRENT FRAME <span id="nextMarkHint">Start with Address / start</span></div><div class="milestones"><button id="markStart" class="milestone" disabled><span class="milestone-num">01</span><strong>Address / start</strong><small id="startVal">Tap to mark</small></button><button id="markTransition" class="milestone" disabled><span class="milestone-num">02</span><strong>Transition</strong><small id="transitionVal">Tap to mark</small></button><button id="markImpact" class="milestone" disabled><span class="milestone-num">03</span><strong>Impact</strong><small id="impactVal">Tap to mark</small></button></div></div>
             <div class="smart-capture" aria-label="Smart capture controls"><div><strong>Auto impact capture <span class="beta">EXPERIMENTAL</span></strong><p>Mount the phone overhead, select the center of a stationary white ball, and arm. The camera records BEFORE a probable putt; local analysis looks for putter approach followed by ball departure. It then opens a short review window around the candidate. Requires confirmation and is not instrument-validated.</p></div><div class="smart-buttons"><button class="secondary" type="button" id="pickROI">⌖ Select ball zone</button><button class="primary" type="button" id="smartArm">◎ Arm auto detection</button><button class="secondary" type="button" id="smartCancel" disabled>Cancel</button></div><small id="smartStatus" role="status" aria-live="polite">Open camera → tap Select ball center → Arm auto detection. Keep the phone still.</small></div>
             
-            <div class="overlay-dock" id="overlayDock" aria-label="Visual overlay controls"><div class="overlay-heading"><strong>Precision overlays</strong><span class="tag estimated">PROJECTED · IMAGE-SPACE</span></div><div class="overlay-toggles"><label><input id="ovTarget" type="checkbox" checked /> Target</label><label><input id="ovPath" type="checkbox" checked /> Path</label><label><input id="ovFace" type="checkbox" checked /> Face</label><label><input id="ovBall" type="checkbox" checked /> Ball</label><label><input id="ovGhost" type="checkbox" /> Ghost</label></div><div class="overlay-actions"><button type="button" id="impactFreeze" class="secondary">⌖ Freeze impact</button><button type="button" id="saveGhost" class="secondary">◇ Set reference</button><label class="overlay-source">Compare to <select id="ghostSource" aria-label="Select ghost reference"><option value="local">Saved reference</option></select></label><label class="overlay-source">Opacity <input id="ghostOpacity" aria-label="Ghost transparency" type="range" min="15" max="95" value="55" /></label></div><small id="ghostStatus" aria-live="polite">Align reference footage to the same camera position and target. Ghost strokes are visual comparisons, not 3D reconstructions.</small></div>
+            <section id="annotationAssist" aria-label="Smart annotation assistant">
+ <h3>Auto analyze · review · correct <span class="beta">V0.6 EXPERIMENTAL</span></h3>
+ <p>Let the analyzer find the ball and a possible impact first. Confirm or correct only what needs attention. No new pins are created while reviewing or zooming.</p>
+ <div class="assist-row"><button id="assistAuto" class="primary" type="button">◎ Auto-analyze overhead clip</button><button id="assistCancel" type="button" class="secondary">Cancel scan</button><button id="assistBall" type="button" class="secondary">⌖ Set ball once</button><button id="assistTrackPutter" type="button" class="secondary">⌁ Track putter</button></div><label class="assist-small"><input id="assistAutoOnLoad" type="checkbox" checked> Automatically analyze short overhead uploads</label>
+ <div id="assistProposals"><div id="assistPreview"></div></div>
+ <div class="assist-choices" role="group" aria-label="Annotation editing mode"><button id="assistReview" class="active" type="button">◉ Review</button><button id="assistEdit" type="button">↔ Move existing</button><button id="assistPlace" type="button">＋ Add new</button></div>
+ <div class="assist-row"><strong style="font-size:11px">ZOOM</strong><div class="assist-zoom" role="group" aria-label="Magnification"><button id="assistZoom1" class="secondary active" type="button">1×</button><button id="assistZoom2" class="secondary" type="button">2×</button><button id="assistZoom3" class="secondary" type="button">3×</button></div><button id="assistDelete" class="secondary" type="button">× Delete selected</button><button id="assistUndo" class="secondary" type="button">↶ Undo last</button></div>
+ <span id="assistSelection">No marker selected. Zoom or scrub without adding pins.</span>
+ <output class="assist-status" id="assistStatus" role="status">Review mode: pinch or zoom without creating pins.</output>
+ <p class="quiet">Automated results are suggestions, not validated face/path measurements. Original video is preserved.</p>
+</section>
+<div class="overlay-dock" id="overlayDock" aria-label="Visual overlay controls"><div class="overlay-heading"><strong>Precision overlays</strong><span class="tag estimated">PROJECTED · IMAGE-SPACE</span></div><div class="overlay-toggles"><label><input id="ovTarget" type="checkbox" checked /> Target</label><label><input id="ovPath" type="checkbox" checked /> Path</label><label><input id="ovFace" type="checkbox" checked /> Face</label><label><input id="ovBall" type="checkbox" checked /> Ball</label><label><input id="ovGhost" type="checkbox" /> Ghost</label></div><div class="overlay-actions"><button type="button" id="impactFreeze" class="secondary">⌖ Freeze impact</button><button type="button" id="saveGhost" class="secondary">◇ Set reference</button><label class="overlay-source">Compare to <select id="ghostSource" aria-label="Select ghost reference"><option value="local">Saved reference</option></select></label><label class="overlay-source">Opacity <input id="ghostOpacity" aria-label="Ghost transparency" type="range" min="15" max="95" value="55" /></label></div><small id="ghostStatus" aria-live="polite">Align reference footage to the same camera position and target. Ghost strokes are visual comparisons, not 3D reconstructions.</small></div>
             <div class="video-toolbar">
               <label class="file-button" for="videoFile">↑ Import <input type="file" id="videoFile" accept="video/*" /></label>
               <button class="toolbar-btn" id="cameraBtn">◉ Camera</button><button class="toolbar-btn recording" id="recordBtn" disabled>● Record</button><button class="toolbar-btn" id="flipBtn" disabled title="Switch front/rear camera">⇄ Flip</button><span class="toolbar-spacer"></span><button class="toolbar-btn" id="clearVideoBtn" disabled>× Clear</button>
@@ -107,7 +143,7 @@
             
             <div class="metrics-grid"><div class="metric"><span>BACKSTROKE</span><strong id="backMetric">—</strong><small>seconds</small></div><div class="metric"><span>FORWARD STROKE</span><strong id="forwardMetric">—</strong><small>seconds</small></div><div class="metric emphasis"><span>TEMPO RATIO</span><strong id="ratioMetric">—</strong><small>back : forward</small></div><div class="metric"><span>TRACK POINTS</span><strong id="pointsMetric">0</strong><small>image coordinates</small></div></div>
           </div>
-          <div class="panel annotation-panel"><div class="panel-head"><div><h2>Image-space analysis</h2><p>Tap the video to add measurement landmarks</p></div><button class="text-button" id="clearMarks">Clear marks</button></div>
+          <div class="panel annotation-panel"><div class="panel-head"><div><h2>Image-space analysis</h2><p>Auto-detect first; select Move existing or Add new to correct marks</p></div><button class="text-button" id="clearMarks">Clear marks</button></div>
             <div class="tool-row" role="group" aria-label="Annotation mode"><button class="tool active" data-tool="putter">╱ Track putter</button><button class="tool" data-tool="head">◌ Head reference</button><button class="tool" data-tool="face">⊥ Face line</button><button class="tool" data-tool="ball">○ Ball center</button><button class="tool" data-tool="target">↗ Target point</button><button class="tool" data-tool="scale">↔ Ball width</button></div>
             <div class="helper" id="toolHelp">Pause the clip. Tap the same identifiable point on the putter head at multiple moments. The path is a 2D projection, not a 3D club path.</div>
             <p class="tracking-status" id="trackingStatus" aria-live="polite">Experimental tracking is not an instrument measurement.</p><div class="annotation-actions"><button class="secondary" id="autoTrackBtn" disabled>⌁ Auto-track selected landmark <span class="beta">EXPERIMENTAL</span></button><button class="secondary" id="undoPointBtn" disabled>↶ Undo mark</button></div>
@@ -747,9 +783,6 @@ video.addEventListener('loadedmetadata',()=>{
 video.addEventListener('durationchange',()=>{
  if(state.autoClip){$('seekBar').min=String(Math.round(state.autoClip.start*1000));$('seekBar').max=String(Math.round(state.autoClip.end*1000));}
 });
-video.addEventListener('durationchange',()=>{
- if(state.autoClip){$('seekBar').min=String(Math.round(state.autoClip.start*1000));$('seekBar').max=String(Math.round(state.autoClip.end*1000));}
-});
 video.addEventListener('timeupdate',()=>{
  const clip=state.autoClip;
  if(clip&&state.mode==='review'&&video.currentTime>=clip.end-.025&&!video.paused){video.pause();video.currentTime=clip.start;}
@@ -762,11 +795,6 @@ $('acceptAutoImpact').addEventListener('click',()=>{
  $('acceptAutoImpact').textContent='✓ Candidate confirmed';$('acceptAutoImpact').disabled=true;
  $('autoClipSummary').textContent+=' Impact time was manually confirmed as a video timestamp. Stroke tempo requires separately marked start and transition frames.';
  toast('Impact timestamp confirmed. Mark start and transition to calculate tempo.');
-});
-$('autoNextStroke').addEventListener('click',async()=>{
- state.autoClip=null;state.autoDetection=null;smartCapture.pending=null;smartCapture.done=false;
- await openCamera();
- if(state.mode==='live'&&state.stream){$('smartArm').click();toast('Next putt: automatic detection armed. Wait for READY.');}
 });
 $('autoNextStroke').addEventListener('click',async()=>{
  state.autoClip=null;state.autoDetection=null;smartCapture.pending=null;smartCapture.done=false;
@@ -790,6 +818,214 @@ setMode=function(mode){prevSetModeAuto(mode);document.querySelector('.smart-capt
  if(mode!=='live'&&smartCapture.armed)disarmSmart('Automatic capture interrupted.');updateROIInput();};
 window.addEventListener('pagehide',()=>{clearTimeout(smartCapture.timer);clearTimeout(smartCapture.postTimer);});
 setMode(state.mode);
+
+</script>
+<script>
+/* Putting Lab v0.6 — touch-safe annotation + auto-first suggestions.
+   Proposals are image-space cues and NEVER silently become verified measurements. */
+(() => {
+'use strict';
+const assist={mode:'review',pointers:new Set(),gesture:null,selected:null,zoom:1,focus:{x:.5,y:.5},pending:null,scanId:0,autoOnImport:true};
+window.PuttingAnnotationAssist=assist;
+const $a=id=>document.getElementById(id);
+const panel=$a('annotationAssist');
+const assistCanvas=document.createElement('canvas'),assistContext=assistCanvas.getContext('2d',{willReadFrequently:true});
+function getAssistFrame(){const w=192,h=Math.max(60,Math.round(w*(video.videoHeight||9)/(video.videoWidth||16)));assistCanvas.width=w;assistCanvas.height=h;assistContext.drawImage(video,0,0,w,h);const bytes=assistContext.getImageData(0,0,w,h).data;const gray=new Uint8Array(w*h);for(let i=0;i<gray.length;i++)gray[i]=Math.round(.299*bytes[i*4]+.587*bytes[i*4+1]+.114*bytes[i*4+2]);return{gray,w,h};}
+const assistMsg=message=>{$a('assistStatus').textContent=message;};
+const assists=()=>state.mode==='review';
+const arrays={putter:'putterMarks',head:'headMarks',face:'faceMarks',ball:'ballMarks',scale:'scaleMarks'};
+const guide={putter:'Putter head',head:'Head reference',face:'Face line',ball:'Ball center',target:'Target reference',scale:'Ball diameter'};
+function listForTool(tool=state.tool){return arrays[tool]?state[arrays[tool]]:null;}
+function activeTimePoint(p){if(state.tool==='target'||state.tool==='scale')return true;
+ if(state.tool==='ball'&&p===state.ballMarks[0]&&(!Number.isFinite(state.marks.impact)||video.currentTime<=state.marks.impact+.1))return true;
+ return Math.abs((p.t??video.currentTime)-video.currentTime)<=Math.max(.15,4/(Number($a('fps').value)||30));}
+function userPoint(e){const b=overlay.getBoundingClientRect(),fit=videoFit();const z=assist.zoom;const w=$a('videoShell').getBoundingClientRect().width,h=$a('videoShell').getBoundingClientRect().height;
+ // The element's client rect expands with CSS zoom. Undo that scale before mapping to the original video frame.
+ const xx=(e.clientX-b.left)*w/Math.max(1,b.width),yy=(e.clientY-b.top)*h/Math.max(1,b.height);
+ const x=(xx-fit.left)/fit.drawWidth,y=(yy-fit.top)/fit.drawHeight;
+ return x>=0&&x<=1&&y>=0&&y<=1?{x,y,t:video.currentTime}:null;
+}
+function screenDistance(p,e){const f=videoFit(),b=overlay.getBoundingClientRect();const w=$a('videoShell').clientWidth,h=$a('videoShell').clientHeight;const q=toScreen(p,f);const px=b.left+q.x*b.width/w,py=b.top+q.y*b.height/h;return Math.hypot(e.clientX-px,e.clientY-py);}
+function targets(){if(state.tool==='target')return state.target?[{kind:'target',index:0,p:state.target}]:[];
+ const a=listForTool();return (a||[]).map((p,index)=>({kind:state.tool,index,p})).filter(o=>activeTimePoint(o.p));}
+function selectNear(e){const found=targets().map(o=>({...o,d:screenDistance(o.p,e)})).sort((a,b)=>a.d-b.d)[0];return found&&found.d<=26?{kind:found.kind,index:found.index}:null;}
+function selectedPoint(){const s=assist.selected;if(!s)return null;if(s.kind==='target')return state.target;return listForTool(s.kind)?.[s.index]||null;}
+function redrawAssist(){setMetrics();if(typeof refreshTimingGuide==='function')refreshTimingGuide();const selected=selectedPoint();$a('assistSelection').textContent=selected?`Selected ${guide[assist.selected.kind]||assist.selected.kind} marker ${assist.selected.index+1}. Drag to reposition, or tap Delete selected.`:'No point selected. Zoom and scrub freely; ordinary taps do not create points.';}
+function setMode(mode){assist.mode=mode;$a('videoShell').classList.toggle('place-mode',mode==='place');$a('videoShell').classList.toggle('edit-drag',mode==='edit');$a('assistReview').classList.toggle('active',mode==='review');$a('assistEdit').classList.toggle('active',mode==='edit');$a('assistPlace').classList.toggle('active',mode==='place');assist.gesture=null;if(mode==='place')assistMsg(`Place mode: select ${guide[state.tool]||state.tool} and tap ONCE. Use Review when finished.`);if(mode==='review')assistMsg('Review mode: swipe, pinch or zoom without adding pins. Select Edit to adjust existing markers.');if(mode==='edit')assistMsg('Edit mode: tap an existing marker to select it; drag it to reposition. No new points will be created.');}
+function setZoom(z){assist.zoom=Math.max(1,Math.min(3,z));const f=videoFit();const fx=Math.max(0,Math.min(1,assist.focus.x)),fy=Math.max(0,Math.min(1,assist.focus.y));
+ const origin=`${(f.left+fx*f.drawWidth)/Math.max(1,f.width)*100}% ${(f.top+fy*f.drawHeight)/Math.max(1,f.height)*100}%`;
+ for(const el of [video,overlay]){el.style.transformOrigin=origin;el.style.transform=`scale(${assist.zoom})`;}
+ for(const x of [1,2,3])$a('assistZoom'+x).classList.toggle('active',x===assist.zoom);
+ assistMsg(assist.zoom>1?`${assist.zoom}× zoom anchored near the selected mark. Return to 1× for full-frame view.`:'1× full-frame view. Review mode never adds pins.');
+}
+function resetViewport(){assist.selected=null;assist.pending=null;assist.focus={x:.5,y:.5};setZoom(1);setMode('review');$a('assistProposals').classList.remove('visible');$a('assistPreview').replaceChildren();redrawAssist();}
+// Stop legacy `pointerdown` annotation handlers before they add points. Live ball-zone selection still works.
+overlay.addEventListener('pointerdown',e=>{
+ if(!assists()||state.busy)return;
+ e.stopImmediatePropagation();
+ assist.pointers.add(e.pointerId);
+ if(assist.pointers.size>1){assist.gesture=null;return;}
+ const hit=selectNear(e);
+ assist.gesture={id:e.pointerId,startX:e.clientX,startY:e.clientY,hit,dragged:false,blocked:false,point:userPoint(e),mode:assist.mode,started:performance.now()};
+ if(assist.mode==='edit'&&hit){assist.selected=hit;const q=selectedPoint();if(q){assist.focus={x:q.x,y:q.y};}redrawAssist();}
+ if(assist.mode==='review'){if(hit){assist.selected=hit;redrawAssist();}return;}
+ if(assist.mode==='place'||(assist.mode==='edit'&&hit)){
+   try{overlay.setPointerCapture(e.pointerId);}catch(err){}
+ }
+},true);
+overlay.addEventListener('pointermove',e=>{
+ if(!assists())return;
+ const g=assist.gesture;
+ if(!g||g.id!==e.pointerId||assist.pointers.size!==1)return;
+ const d=Math.hypot(e.clientX-g.startX,e.clientY-g.startY);
+ if(d>9)g.dragged=true;
+ if(g.mode==='edit'&&g.hit&&d>7){const p=userPoint(e),q=selectedPoint();if(!p||!q)return;
+   q.x=p.x;q.y=p.y;g.modified=true;redrawAssist();
+ }
+},true);
+overlay.addEventListener('pointerup',e=>{
+ if(!assists())return;
+ const g=assist.gesture;const isOnly=assist.pointers.size===1;
+ assist.pointers.delete(e.pointerId);
+ if(!g||g.id!==e.pointerId||!isOnly){assist.gesture=null;return;}
+ if(g.mode==='place'&&!g.dragged&&performance.now()-g.started<900){
+   const p=userPoint(e);
+   if(p){let arr=listForTool();if(g.point&&Math.hypot(g.point.x-p.x,g.point.y-p.y)<.035){
+    if(state.tool==='target'){state.target=p;assist.selected={kind:'target',index:0};}
+    else if(arr){
+      if((state.tool==='face'||state.tool==='scale')&&arr.length>=2)arr.splice(0,arr.length);
+      arr.push(p);assist.selected={kind:state.tool,index:arr.length-1};
+    }
+    assist.focus={x:p.x,y:p.y};redrawAssist();assistMsg(`Placed ${guide[state.tool]||state.tool} point. Tap Edit to reposition; further taps only add points while Place remains active.`);
+   }}
+ }
+ if(g.mode==='edit'&&g.modified){redrawAssist();assistMsg('Point moved. The path uses the corrected position; no new pin added.');}
+ assist.gesture=null;
+},true);
+overlay.addEventListener('pointercancel',e=>{assist.pointers.delete(e.pointerId);assist.gesture=null;},true);
+overlay.addEventListener('lostpointercapture',e=>{assist.pointers.delete(e.pointerId);assist.gesture=null;},true);
+for(const [id,mode] of [['assistReview','review'],['assistEdit','edit'],['assistPlace','place']])$a(id).addEventListener('click',()=>setMode(mode));
+for(const n of [1,2,3])$a('assistZoom'+n).addEventListener('click',()=>{const q=selectedPoint()||state.ballMarks[0]||assist.pending?.ball;if(q)assist.focus={x:q.x,y:q.y};setZoom(n);});
+$a('assistDelete').addEventListener('click',()=>{const sel=assist.selected;if(!sel){assistMsg('Select an existing marker in Edit mode before deleting.');return;}
+ if(sel.kind==='target')state.target=null;else listForTool(sel.kind)?.splice(sel.index,1);
+ assist.selected=null;redrawAssist();assistMsg('Selected point deleted. Other points remain unchanged.');});
+$a('assistUndo').addEventListener('click',()=>{if(state.tool==='target')state.target=null;else listForTool()?.pop();assist.selected=null;redrawAssist();assistMsg('Last point for the current tool removed.');});
+$a('assistBall').addEventListener('click',()=>{state.tool='ball';document.querySelectorAll('[data-tool]').forEach(el=>el.classList.toggle('active',el.dataset.tool==='ball'));setMode('place');assistMsg('Tap ONCE on the center of the ball. This is the only point needed to seed automatic clip analysis.');});
+document.querySelectorAll('[data-tool]').forEach(el=>el.addEventListener('click',()=>{assist.selected=null;setMode('edit');redrawAssist();}));
+
+function brightBallCandidate(frame){
+ const {gray:g,w,h}=frame,seen=new Uint8Array(w*h),queue=new Int32Array(w*h);let best=null;
+ // Detect compact bright round components, avoid the extremely bright straight UI edges.
+ for(let y=Math.round(h*.14);y<Math.round(h*.87);y++)for(let x=Math.round(w*.12);x<Math.round(w*.88);x++){
+  const seed=y*w+x;if(seen[seed]||g[seed]<194)continue;
+  let start=0,end=1,minx=x,maxx=x,miny=y,maxy=y,sumx=0,sumy=0,luma=0;queue[0]=seed;seen[seed]=1;
+  while(start<end&&end<360){const v=queue[start++],cx=v%w,cy=Math.floor(v/w);sumx+=cx;sumy+=cy;luma+=g[v];minx=Math.min(minx,cx);maxx=Math.max(maxx,cx);miny=Math.min(miny,cy);maxy=Math.max(maxy,cy);
+   for(const neighbor of [v-1,v+1,v-w,v+w]){if(neighbor<0||neighbor>=g.length||seen[neighbor]||g[neighbor]<194)continue;
+    if(Math.abs(neighbor%w-cx)>1)continue;seen[neighbor]=1;queue[end++]=neighbor;if(end>=360)break;}
+  }
+  const width=maxx-minx+1,height=maxy-miny+1,aspect=width/height,fill=end/(width*height),radius=Math.sqrt(end/Math.PI);
+  if(end<10||end>150||radius<2||radius>8||aspect<.65||aspect>1.5||fill<.45)continue;
+  const mx=sumx/end,my=sumy/end;
+  const border=[];for(let oy=-radius*2;oy<=radius*2;oy+=3)for(let ox=-radius*2;ox<=radius*2;ox+=3){const xx=Math.round(mx+ox),yy=Math.round(my+oy);if(xx<0||yy<0||xx>=w||yy>=h||Math.hypot(ox,oy)<radius*1.25)continue;border.push(g[yy*w+xx]);}
+  const surround=border.length?border.reduce((a,b)=>a+b,0)/border.length:100,contrast=luma/end-surround;
+  if(contrast<42)continue;
+  const proximity=1-Math.min(1,Math.hypot(mx-w*.5,my-h*.44)/Math.hypot(w*.5,h*.5));
+  const score=contrast*.55+proximity*55+Math.min(end,35)*.15;
+  if(!best||score>best.score)best={x:mx/w,y:my/h,t:video.currentTime,score,contrast,area:end};
+ }
+ return best;
+}
+function showPending(){const p=assist.pending,box=$a('assistProposals'),preview=$a('assistPreview');preview.replaceChildren();box.classList.toggle('visible',!!p);
+ if(!p)return;
+ const lines=[];
+ if(p.ball)lines.push(`Ball reference: proposed at ${Math.round(p.ball.x*100)}%, ${Math.round(p.ball.y*100)}% of image (check visually).`);
+ else lines.push('Ball center: not confidently located. Use “Set ball once” then retry.');
+ if(Number.isFinite(p.impact))lines.push(`Impact candidate: ~${p.impact.toFixed(3)} seconds, sampled at ${p.interval} ms; NOT instrument-grade timing.`);
+ else lines.push('Impact: no reliable ball-departure candidate; nothing has been assigned.');
+ if(Number.isFinite(p.start))lines.push(`First approach activity: ~${p.start.toFixed(3)} seconds (not verified stroke start).`);
+ lines.push('No face, path, or ball-speed value is claimed from these cues.');
+ const summary=document.createElement('div');summary.textContent=lines.join(' ');preview.append(summary);
+ const button=(label,action,primary=false)=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.classList.toggle('primary',primary);b.addEventListener('click',action);preview.append(b);return b;};
+ if(p.ball)button('✓ Accept ball reference',()=>{if(!p)return;if(!state.ballMarks.some(m=>Math.abs(m.t-p.ball.t)<.09))state.ballMarks.unshift({...p.ball,auto:true,verifiedByUser:true});assist.focus={x:p.ball.x,y:p.ball.y};redrawAssist();assistMsg('Ball reference accepted. You can switch to Edit and move it.');});
+ if(Number.isFinite(p.impact)){
+  button('▶ Inspect impact frame',()=>{video.pause();video.currentTime=p.impact;},false);
+  button('✓ Confirm impact frame',()=>{video.pause(); // User must first inspect visually and may step frames. Use CURRENT video timestamp.
+   if(Math.abs(video.currentTime-p.impact)>1){assistMsg('Move to the proposed impact window to confirm it.');return;}
+   state.marks.impact=video.currentTime;
+   if(state.autoDetection)state.autoDetection.confirmed=true;
+   redrawAssist();assistMsg(`Confirmed impact at ${video.currentTime.toFixed(3)}s. Start/transition remain unmeasured until verified.`);
+  },true);
+ }
+ button('Dismiss suggestions',()=>{assist.pending=null;showPending();});
+}
+// Auto-clip analysis for imported videos. Candidate detection is conservative; sampling/lighting errors are explicit.
+async function analyzeVideo(){
+ if(state.mode!=='review'||state.busy)return;
+ if(!Number.isFinite(video.duration)||video.duration<=.25){assistMsg('Wait for video metadata to load.');return;}
+ if($a('angle').value!=='overhead'){assistMsg('Select Overhead camera angle before automatic overhead detection.');return;}
+ const token=++assist.scanId;const resume=video.currentTime;const duration=video.duration;
+ video.pause();state.busy=true;$a('assistAuto').disabled=true;$a('assistProposals').classList.remove('visible');assist.pending=null;
+ try{
+  const maxT=Math.min(duration-.02,20),step=Math.max(1/18,maxT/280),timestamps=[];
+  let firstFrame;
+  await seekForTracking(Math.min(.08,maxT));firstFrame=getSmallFrame();
+  const originalBall=state.ballMarks[0]||smartCapture.roi;
+  const foundBall=originalBall?{x:originalBall.x,y:originalBall.y,t:.08,score:100}:brightBallCandidate(firstFrame);
+  if(!foundBall){assistMsg('Automatic analysis could not confidently identify the ball. Tap “Set ball once” on a paused frame, then run again.');return;}
+  const roi={x:foundBall.x,y:foundBall.y};const det=new ImpactCandidateDetector(192,Math.max(60,Math.round(192*(video.videoHeight||9)/(video.videoWidth||16))),roi);
+  let candidate=null,firstApproach=null,cameraMotion=0,samples=0,qualityWarnings=[];
+  for(let t=.08;t<=maxT+.001;t+=step){
+   if(token!==assist.scanId||state.mode!=='review')throw Error('Analysis canceled by a new video');
+   await seekForTracking(Math.min(maxT,t));const frame=getAssistFrame();samples++;
+   const finding=det.sample(frame.gray,Math.round(t*1000));
+   if(finding.status==='camera-moving')cameraMotion++;
+   if(finding.status==='approach'&&firstApproach===null)firstApproach=t;
+   if(finding.status==='candidate'){candidate=finding;break;}
+   if(samples%16===0){assistMsg(`Analyzing overhead frames… ${Math.round(t/maxT*100)}%. Keep the page open.`);await new Promise(r=>setTimeout(r,0));}
+  }
+  if(cameraMotion>Math.max(3,samples*.16))qualityWarnings.push('Camera movement disrupted detection');
+  const plausible=candidate&&cameraMotion<=Math.max(3,samples*.16);
+  assist.pending={ball:foundBall,impact:plausible?candidate.time/1000:null,start:firstApproach,interval:Math.round(step*1000),samples,reason:qualityWarnings.join('; ')};
+  showPending();
+  if(plausible){video.currentTime=Math.max(0,candidate.time/1000-.16);assistMsg(`Possible impact found around ${(candidate.time/1000).toFixed(2)}s. Inspect the frame, then confirm or correct it. ${samples} samples checked.`);}
+  else assistMsg(`No sufficiently credible impact detected (${samples} frames). ${qualityWarnings.join('; ')||'Check ball center, overhead lighting and camera stability.'} No impact was assigned.`);
+ }catch(err){assistMsg('Auto scan stopped: '+err.message);}finally{state.busy=false;$a('assistAuto').disabled=false;try{if(!Number.isFinite(assist.pending?.impact))await seekForTracking(Math.min(Math.max(0,resume),video.duration-.001));}catch(e){}setMetrics();}
+}
+$a('assistAuto').addEventListener('click',analyzeVideo);
+$a('assistTrackPutter').addEventListener('click',()=>{
+ if(!assists()){assistMsg('Load an overhead clip first.');return;}
+ state.tool='putter';document.querySelectorAll('[data-tool]').forEach(el=>el.classList.toggle('active',el.dataset.tool==='putter'));
+ if(!state.putterMarks.length){setMode('place');assistMsg('Tap ONE clear landmark on the putter head before the forward stroke, then press Track putter again. Tracking will attempt subsequent frames.');return;}
+ setMode('review');$a('autoTrackBtn').click();assistMsg('Tracking from the selected putter seed. Check the trace and move any incorrect points afterward.');
+});
+$a('assistCancel').addEventListener('click',()=>{assist.scanId++;assistMsg('Scan canceled. No suggested measurements were automatically confirmed.');});
+// For a short overhead video, run analysis without requiring marker placement or an extra tap.
+video.addEventListener('loadedmetadata',()=>{
+ if(!$a('assistAutoOnLoad').checked||state.mode!=='review'||state.autoDetection||!Number.isFinite(video.duration)||video.duration>12)return;
+ const url=state.fileUrl;
+ setTimeout(()=>{if(state.mode==='review'&&state.fileUrl===url&&!state.busy&&!state.autoDetection)analyzeVideo();},180);
+});
+// Present live camera candidate as a suggestion; never silently confirm timing.
+const previousShowAutoClip=showAutoClip;
+showAutoClip=function(info){previousShowAutoClip(info);if(info?.found&&Number.isFinite(state.autoDetection?.time)){
+ assist.pending={ball:smartCapture.roi?{...smartCapture.roi,t:0.05}:null,impact:state.autoDetection.time,interval:Math.round(info.sampleMs||100),start:null};showPending();assistMsg('Automatic live-camera candidate is ready for review. Confirm its frame before analysis.');}}
+// Avoid phantom points from clearing or changing clips; do not carry over edit state.
+const previousLoad=loadVideo;
+loadVideo=async function(file,options){assist.scanId++;resetViewport();return previousLoad(file,options);};
+// Camera workflow remains untouched and uses its existing explicit ROI selection.
+const oldReset=resetMarks;
+resetMarks=function(){oldReset();assist.selected=null;redrawAssist();};
+$a('angle').value='overhead';renderGuide();
+$a('videoShell').classList.add('automatic-inspect');
+// Keep expert controls available without forcing mobile users through a massive form.
+for(const [selector,label] of [['.annotation-panel','Advanced manual landmarks and measurements'],['.replay-panel','Optional planar replay']]){
+ const node=document.querySelector('.studio-main > '+selector);if(!node)continue;
+ const details=document.createElement('details');details.className='assist-advanced';details.open=window.innerWidth>700;
+ const summary=document.createElement('summary');summary.textContent=label;details.append(summary);
+ node.parentNode.insertBefore(details,node);details.append(node);
+}
+setMode('review');setZoom(1);redrawAssist();
+})();
 
 </script>
 </body>
