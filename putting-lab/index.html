@@ -105,6 +105,10 @@
 .evidence-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0}.evidence-metric{border:1px solid #3a5542;background:#192e23;padding:11px 10px;border-radius:8px;min-width:0}.evidence-metric small{color:#a8c7aa;font-size:10px;font-weight:700;display:block}.evidence-metric strong{color:#efffea;font-size:16px;display:block;margin:5px 0;overflow-wrap:anywhere}.evidence-metric span{font-size:10px;color:#bad1b8;line-height:1.4;display:block}.evidence-metric .evidence-flag{font-size:9px;padding:3px 6px;background:#314335;display:inline-block;border-radius:5px;color:#d0e6c5;margin-bottom:5px}.evidence-metric .evidence-flag.unavailable{background:#3e332c;color:#e8c9a4}.evidence-metric .evidence-flag.proposed{background:#3e4326;color:#e5ef9e}.evidence-metric .evidence-flag.verified{background:#275c35;color:#d4f4c6}.evidence-footer{display:flex;gap:8px;flex-wrap:wrap}.evidence-footer button{font-size:11px;min-height:39px}.evidence-advisory{border-top:1px solid #304735;padding-top:10px!important}
 body.workspace-live #tab-live .studio-layout{max-width:950px}body.workspace-live .video-toolbar .file-button,body.workspace-live #emptyUpload{display:none!important}body.workspace-upload #cameraBtn,body.workspace-upload #recordBtn,body.workspace-upload #flipBtn,body.workspace-upload #emptyCamera,body.workspace-upload .smart-capture{display:none!important}body.workspace-upload .camera-actual{display:none}.live-stage .camera-panel .review-workflow,.live-stage .camera-panel #annotationAssist,.live-stage .camera-panel #phaseReview{max-width:100%}
 @media(max-width:700px){.workspace-choice{gap:6px}.workspace-choice button{font-size:11px;padding:13px 5px}.capture-profiles{flex-direction:column;align-items:stretch}.capture-profiles select{max-width:100%;width:100%}.evidence-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.evidence-metric strong{font-size:14px}}
+
+/* v0.8.1: capture capability negotiation: overhead primary, sensor modes are not guaranteed */
+.capture-quality{max-width:950px;background:#12251c;border:1px solid #4b654b;border-radius:12px;padding:13px;margin:0 0 14px}.capture-quality-head,.capture-quality-row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.capture-quality-head strong{font-size:14px}.capture-quality-target{font-size:11px;font-weight:800;color:#bee3a7;background:#2b4830;border:1px solid #517459;border-radius:7px;padding:6px 9px}.capture-quality-row{justify-content:flex-start;margin:12px 0 8px}.capture-quality-row label{display:grid;gap:6px;font-size:11px;color:#c3d5c4;flex:1;min-width:170px}.capture-quality-row select{max-width:410px;width:100%;min-height:42px;border-radius:8px;padding:9px;background:#193023;color:#efffec;border:1px solid #5d765b}.capture-quality-row button{min-height:42px}.capture-quality-readout{font-size:12px;font-weight:750;border-left:3px solid #93c772;background:#1c3324;padding:9px 11px;margin-top:8px;color:#e5f8d9;overflow-wrap:anywhere}.capture-quality-readout.is-limited{border-color:#d5ad73;color:#f2d9ae}.capture-quality-disclaimer{font-size:11px;color:#b4cbb6;line-height:1.55;margin:9px 0 0}
+@media(max-width:700px){.capture-quality{padding:11px}.capture-quality-row{display:grid;grid-template-columns:minmax(0,1fr)}.capture-quality-row button{width:100%}}
 </style>
 
   
@@ -128,9 +132,15 @@ body.workspace-live #tab-live .studio-layout{max-width:950px}body.workspace-live
   <main class="main">
     <header class="topbar"><div class="mobile-brand"><span class="brand-logo">◎</span> PUTTING<span class="lime">/</span>LAB</div><div class="topbar-right"><span class="secure">● Private workspace</span><span class="avatar">PL</span></div></header>
     <section id="tab-live" class="tab active" aria-label="Dedicated live automatic putting detection">
-      <div class="page-heading"><div><div class="eyebrow">WORKSPACE 01 / FIXED IPHONE CAMERA</div><h1>Live putting detection<span class="lime">.</span></h1><p>Mount the phone, acquire the ball, arm once, putt, then verify the clipped stroke.</p></div><span class="version-pill">LIVE / V0.8</span></div>
+      <div class="page-heading"><div><div class="eyebrow">WORKSPACE 01 / FIXED IPHONE CAMERA</div><h1>Live putting detection<span class="lime">.</span></h1><p>Mount the phone, acquire the ball, arm once, putt, then verify the clipped stroke.</p></div><span class="version-pill">LIVE / V0.8.1</span></div>
       <div class="workspace-choice" role="group" aria-label="Analysis workspace"><button data-tab="live" class="active" type="button">◉ Live auto-detection</button><button data-tab="studio" type="button">↑ Video upload analysis</button></div>
       <div class="focus-note"><strong>Hands-free capture, human-verified results.</strong> Auto-detection first identifies a stationary ball and a possible departure after putter movement. It keeps the recording and proposes stroke phases. Face, path and velocity require sufficient visual evidence and calibration before numeric results are shown.</div>
+      <div class="capture-quality" aria-label="Live overhead camera quality">
+        <div class="capture-quality-head"><strong>Overhead camera quality</strong><span class="capture-quality-target">4K / 120 fps target</span></div>
+        <div class="capture-quality-row"><label for="qualityPriority">Capture preference <select id="qualityPriority"><option value="impact" selected>Best for impact · prefer 4K/120</option><option value="fps">Highest frame rate · prefer 240 fps</option><option value="detail">Highest resolution · prefer 4K</option><option value="reliable">Compatible · prefer 1080p/60</option></select></label><button type="button" class="secondary" id="qualityRefresh">↻ Recheck camera</button></div>
+        <div class="capture-quality-readout" id="qualityStatus" role="status" aria-live="polite">Camera inactive · open the camera to negotiate its best available mode.</div>
+        <p class="capture-quality-disclaimer">Actual stream resolution and fps are controlled by iOS/Safari. Requested ≠ delivered; recording may use fewer frames than the live stream. 4K/120 ProRes requires external storage in Apple's Camera app; this browser uses MediaRecorder, not ProRes. For dependable high-speed footage, use native Camera recording and Video Upload Analysis.</p>
+      </div>
       <div id="liveStage" class="live-stage"></div>
       <div class="focus-note subnote"><strong>Live setup:</strong> iPhone mounted steady and overhead; ball in view; select its center once if automatic acquisition fails. Browser camera frame rate may be lower than requested. Upload existing high-speed recordings in the other workspace.</div>
     </section>
@@ -191,7 +201,7 @@ body.workspace-live #tab-live .studio-layout{max-width:950px}body.workspace-live
               <label class="file-button" for="videoFile">↑ Import <input type="file" id="videoFile" accept="video/*" /></label>
               <button class="toolbar-btn" id="cameraBtn">◉ Camera</button><button class="toolbar-btn recording" id="recordBtn" disabled>● Record</button><button class="toolbar-btn" id="flipBtn" disabled title="Switch front/rear camera">⇄ Flip</button><span class="toolbar-spacer"></span><button class="toolbar-btn" id="clearVideoBtn" disabled>× Clear</button>
             </div>
-            <p class="camera-actual" id="cameraActual" aria-live="polite">Camera format: awaiting access. Safari may limit requested frame rates.</p><div class="fast-actions" aria-label="Quick result actions"><button type="button" id="quickMake">✓ Made</button><button type="button" id="quickMiss">× Missed</button><button type="button" id="quickVoice">🎙 Result by voice</button><button type="button" id="quickSave">＋ Save</button></div>
+            <p class="camera-actual" id="cameraActual" aria-live="polite">Camera format: not negotiated yet · open camera to test available modes.</p><div class="fast-actions" aria-label="Quick result actions"><button type="button" id="quickMake">✓ Made</button><button type="button" id="quickMiss">× Missed</button><button type="button" id="quickVoice">🎙 Result by voice</button><button type="button" id="quickSave">＋ Save</button></div>
           </div>
           <div class="panel analysis-panel"><div class="panel-head"><div><h2>Stroke timing results</h2><p>Mark the three moments using the controls under the video.</p></div><span class="tag verified">DIRECT TIMING</span></div>
             
@@ -226,7 +236,7 @@ body.workspace-live #tab-live .studio-layout{max-width:950px}body.workspace-live
     <section id="tab-trends" class="tab"><div class="page-heading"><div><div class="eyebrow">PERFORMANCE ANALYTICS</div><h1>Performance<span class="lime">.</span></h1><p>Find trends across sessions—not isolated strokes.</p></div></div><div class="kpis" id="trendKpis"></div><div class="panel" id="adaptivePanel"><div class="panel-head"><div><h2>Adaptive performance coach <span class="beta">EVIDENCE-GATED</span></h2><p>Recommendations based on matched self-reported putts, not automatic mechanical diagnosis.</p></div></div><div class="adaptive-controls"><label>Player <select id="adaptivePlayer"></select></label><label>Putter <select id="adaptivePutter"></select></label><label>Distance <select id="adaptiveDistance"></select></label><label>Condition <select id="adaptiveCondition"></select></label></div><div id="adaptiveEvidence" aria-live="polite"></div><button type="button" id="adaptiveDrill" class="secondary" disabled>↗ Open suggested drill</button></div><div class="panel"><div class="panel-head"><div><h2>Stroke tempo across recordings</h2><p>Backstroke-to-forward ratio from manually marked timestamps</p></div></div><div class="chart" id="tempoChart"></div></div><div class="panel"><div class="panel-head"><div><h2>Results by putting distance</h2><p>Make rate only includes strokes logged as made or missed</p></div></div><div id="distanceChart" class="bars"></div></div></section>
     <section id="tab-fit" class="tab"><div class="page-heading"><div><div class="eyebrow">EQUIPMENT RESEARCH</div><h1>Putter fitting<span class="lime">.</span></h1><p>Compare observed performance by putter and practice condition.</p></div></div><div class="panel"><div class="panel-head"><div><h2>Putter comparison</h2><p>Outcomes are observational, not a controlled fitting result</p></div></div><div class="table-wrap"><table><thead><tr><th>PUTTER</th><th>STROKES</th><th>RECORDED MAKE %</th><th>AVG TEMPO</th><th>AVG LEAVE</th><th>MATCHED TRIALS</th></tr></thead><tbody id="putterRows"></tbody></table></div><p id="fitCaution" class="fit-caution" aria-live="polite"></p></div><div class="tip-box"><strong>For a meaningful A/B test:</strong> Alternate putters at the same distances, on the same green and break, with equal attempts. Record misses and leave distances instead of cherry-picking makes. At small sample sizes, apparent differences may be noise.</div></section>
     <section id="tab-drills" class="tab"><div class="page-heading"><div><div class="eyebrow">STRUCTURED PRACTICE</div><h1>Drill library<span class="lime">.</span></h1><p>Turn a technical finding into a repeatable practice plan.</p></div></div><div class="drill-grid" id="drillCards"></div></section>
-    <section id="tab-settings" class="tab"><div class="page-heading"><div><div class="eyebrow">DATA MANAGEMENT</div><h1>Data & setup<span class="lime">.</span></h1><p>Control local storage, backups, and measurement expectations.</p></div></div><div class="settings-grid"><div class="panel"><h2>Export & import</h2><p>Back up metadata as JSON (video blobs are not included).</p><div class="settings-actions"><button class="primary" id="exportJson">↓ Export JSON</button><button class="secondary" id="exportCsv">↓ Export CSV</button><label class="file-button" for="importJson">↑ Import JSON <input type="file" id="importJson" accept=".json,application/json" /></label></div><p id="recordCount">0 records saved</p></div><div class="panel"><h2>Video data policy</h2><p>Video review and measurements run locally in your browser. Browser speech recognition may use your browser provider’s online recognition service; typed logging stays local. If you select “Keep video,” a clip is saved to IndexedDB on this device. The browser may evict stored data when space is low.</p><button class="danger-btn" id="deleteAll">Delete all local strokes and videos</button></div><div class="panel"><h2>Measurement grades</h2><div class="grade-row"><span class="tag verified">MEASURED</span><p>Timing intervals computed from video positions selected by the user; recorded outcomes and putt distances are self-reported.</p></div><div class="grade-row"><span class="tag estimated">ESTIMATED</span><p>2D putter trace, projected angles, experimental pattern matching, and rule-based coaching.</p></div><div class="grade-row"><span class="tag calibrate">CALIBRATE / HARDWARE</span><p>True 3D path, face-to-target angle at impact, dynamic loft, strike location, skid/roll, ball speed and launch characteristics.</p></div></div><div class="panel"><h2>Camera permissions</h2><p>The live camera needs HTTPS or localhost and browser permission. Camera recording uses MediaRecorder when supported. On iPhone, open the hosted app in Safari.</p><p id="supportCheck"></p></div></div></section>
+    <section id="tab-settings" class="tab"><div class="page-heading"><div><div class="eyebrow">DATA MANAGEMENT</div><h1>Data & setup<span class="lime">.</span></h1><p>Control local storage, backups, and measurement expectations.</p></div></div><div class="settings-grid"><div class="panel"><h2>Export & import</h2><p>Back up metadata as JSON (video blobs are not included).</p><div class="settings-actions"><button class="primary" id="exportJson">↓ Export JSON</button><button class="secondary" id="exportCsv">↓ Export CSV</button><label class="file-button" for="importJson">↑ Import JSON <input type="file" id="importJson" accept=".json,application/json" /></label></div><p id="recordCount">0 records saved</p></div><div class="panel"><h2>Video data policy</h2><p>Video review and measurements run locally in your browser. Browser speech recognition may use your browser provider’s online recognition service; typed logging stays local. If you select “Keep video,” a clip is saved to IndexedDB on this device. The browser may evict stored data when space is low.</p><button class="danger-btn" id="deleteAll">Delete all local strokes and videos</button></div><div class="panel"><h2>Measurement grades</h2><div class="grade-row"><span class="tag verified">MEASURED</span><p>Timing intervals computed from video positions selected by the user; recorded outcomes and putt distances are self-reported.</p></div><div class="grade-row"><span class="tag estimated">ESTIMATED</span><p>2D putter trace, projected angles, experimental pattern matching, and rule-based coaching.</p></div><div class="grade-row"><span class="tag calibrate">CALIBRATE / HARDWARE</span><p>True 3D path, face-to-target angle at impact, dynamic loft, strike location, skid/roll, ball speed and launch characteristics.</p></div></div><div class="panel"><h2>Camera permissions</h2><p>The live camera needs HTTPS or localhost and browser permission. Camera recording uses MediaRecorder when supported. Safari may reduce capture resolution, FPS, and encoded FPS; an external USB-C drive does not make browser ProRes possible. On iPhone, open the hosted app in Safari.</p><p id="supportCheck"></p></div></div></section>
   </main>
   <nav class="bottom-nav" aria-label="Mobile navigation"><button data-tab="live" class="active"><span>◉</span>Live</button><button data-tab="studio"><span>↑</span>Upload</button><button data-tab="sessions"><span>▤</span>Sessions</button><button data-tab="trends"><span>⌁</span>Trends</button><button data-tab="fit"><span>⚖</span>Fit</button><button data-tab="drills"><span>⛳</span>Drills</button></nav>
 </div>
@@ -267,7 +277,79 @@ $('videoFile').addEventListener('change',async e=>{await loadVideo(e.target.file
 $('emptyUpload').addEventListener('click',()=>$('videoFile').click());
 $('emptyCamera').addEventListener('click',()=>openCamera());
 $('cameraBtn').addEventListener('click',()=>openCamera());
-async function openCamera(){if(!navigator.mediaDevices?.getUserMedia){toast('Camera unavailable. Use HTTPS in Safari or upload a video.',true);return;}if(state.recorder?.state==='recording'){toast('Stop the recording first.',true);return;}try{video.pause();stopStream();const stream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:state.facing},width:{ideal:1280},height:{ideal:720},frameRate:{ideal:60}}});state.stream=stream;live.srcObject=stream;await live.play().catch(()=>{});setMode('live');const settings=stream.getVideoTracks()[0]?.getSettings?.()||{};$('cameraActual').textContent=`ACTIVE: ${settings.width||'?'}×${settings.height||'?'} · ${settings.frameRate||'?'} fps (reported)`;toast('Camera is active. Actual frame rate appears below the preview.');}catch(err){toast('Could not access camera: '+err.message,true);}}
+/* Capture modes are attempted as exact tuples because Safari can silently downgrade ideal constraints.
+   getSettings() is the reported active stream, never a guarantee of MediaRecorder encoded cadence. */
+const CAPTURE_MODES={
+ impact:[['4K 120',3840,2160,120],['1080p 240',1920,1080,240],['1080p 120',1920,1080,120],['4K 60',3840,2160,60],['1080p 60',1920,1080,60],['720p 60',1280,720,60],['1080p 30',1920,1080,30],['720p 30',1280,720,30]],
+ fps:[['1080p 240',1920,1080,240],['4K 120',3840,2160,120],['1080p 120',1920,1080,120],['4K 60',3840,2160,60],['1080p 60',1920,1080,60],['720p 60',1280,720,60],['1080p 30',1920,1080,30],['720p 30',1280,720,30]],
+ detail:[['4K 120',3840,2160,120],['4K 60',3840,2160,60],['4K 30',3840,2160,30],['1080p 240',1920,1080,240],['1080p 120',1920,1080,120],['1080p 60',1920,1080,60],['1080p 30',1920,1080,30],['720p 30',1280,720,30]],
+ reliable:[['1080p 60',1920,1080,60],['1080p 30',1920,1080,30],['720p 60',1280,720,60],['720p 30',1280,720,30]]
+};
+let cameraRequestId=0;
+function streamSettings(track){try{return track?.getSettings?.()||{};}catch(e){return {};}}
+function formatCameraSettings(s){return `${s.width||'?'}×${s.height||'?'} · ${Number.isFinite(s.frameRate)?Number(s.frameRate.toFixed(1)):'?'} fps`;}
+function matchesCameraMode(s,mode){return Number(s.width)>=mode[1]*.98 && Number(s.height)>=mode[2]*.98 && Number(s.frameRate)>=mode[3]*.98;}
+function cameraReadout(message,limited=false){const el=$('qualityStatus');if(el){el.textContent=message;el.classList.toggle('is-limited',limited);}}
+async function negotiateCameraTrack(track,priority,requestId){
+  const modes=CAPTURE_MODES[priority]||CAPTURE_MODES.impact;
+  const initial=streamSettings(track);let winner=initial,winnerMode=null,successful=false,attempts=0;
+  // getCapabilities supplies upper bounds, not supported width/height/fps combinations.
+  let cap={};try{cap=track.getCapabilities?.()||{};}catch(e){}
+  for(const mode of modes){
+    if(requestId!==cameraRequestId)throw Error('Camera configuration superseded');
+    if(cap.width?.max && mode[1]>cap.width.max+1)continue;
+    if(cap.height?.max && mode[2]>cap.height.max+1)continue;
+    if(cap.frameRate?.max && mode[3]>cap.frameRate.max+1)continue;
+    if(typeof track.applyConstraints!=='function')break;
+    attempts++;
+    try{
+      await track.applyConstraints({width:{exact:mode[1]},height:{exact:mode[2]},frameRate:{exact:mode[3]}});
+      const actual=streamSettings(track);
+      if(matchesCameraMode(actual,mode)){winner=actual;winnerMode=mode[0];successful=true;break;}
+    }catch(err){if(err?.name==='NotAllowedError'||err?.name==='NotReadableError')throw err;}
+  }
+  // An exact request may be rounded/downscaled by the browser. Use a generous ideal request
+  // if no exact mode was accepted, without making capture fail on older Safari devices.
+  if(!successful && typeof track.applyConstraints==='function'){
+    try{await track.applyConstraints({width:{ideal:3840},height:{ideal:2160},frameRate:{ideal:120}});}catch(err){}
+    winner=streamSettings(track);
+  }
+  return {settings:winner,requested:modes[0][0],matched:winnerMode,attempts};
+}
+function showCameraResult(info){
+  const actual=info.settings||{},format=formatCameraSettings(actual),fps=Number(actual.frameRate)||0;
+  const ideal=info.requested||'4K 120',onTarget=Number(actual.width)>=3800&&Number(actual.height)>=2100&&fps>=118;
+  const label=info.matched?`Negotiated ${info.matched}`:'Browser fallback';
+  $('cameraActual').textContent=`LIVE TRACK: ${format} (getSettings, not recorded-file fps)`;
+  cameraReadout(`${label}: ${format}. Target: ${ideal}. ${onTarget?'4K/120 stream reported.':'Browser reported a lower or unverified mode.'} Recorded fps may differ.`,!onTarget);
+  state.cameraFormat={...actual,requested:ideal,matched:info.matched||null};
+  // Frame-step dropdown is an estimate only; the encoded file may have a different frame rate.
+  if(Number.isFinite(fps)&&fps>=24){
+    const options=[...$('fps').options].map(q=>Number(q.value));
+    const nearest=options.reduce((a,b)=>Math.abs(b-fps)<Math.abs(a-fps)?b:a,options[0]);
+    $('fps').value=String(nearest);
+  }
+}
+async function openCamera(){
+  if(!navigator.mediaDevices?.getUserMedia){toast('Camera unavailable. Use HTTPS in Safari or upload a video.',true);return;}
+  if(state.recorder?.state==='recording'||(typeof smartCapture!=='undefined'&&smartCapture.armed)){toast('Stop the current recording before changing camera quality.',true);return;}
+  const requestId=++cameraRequestId;const refresh=$('qualityRefresh');if(refresh)refresh.disabled=true;
+  cameraReadout('Requesting rear camera and testing available high-speed modes…');
+  try{
+    video.pause();stopStream();
+    // First request is deliberately soft: do not reject the camera if Safari caps 4K/120.
+    const stream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:state.facing},width:{ideal:3840},height:{ideal:2160},frameRate:{ideal:120}}});
+    if(requestId!==cameraRequestId){stream.getTracks().forEach(t=>t.stop());return;}
+    const track=stream.getVideoTracks()[0];if(!track)throw Error('No video track returned');
+    const info=await negotiateCameraTrack(track,$('qualityPriority').value,requestId);
+    if(requestId!==cameraRequestId){stream.getTracks().forEach(t=>t.stop());return;}
+    state.stream=stream;live.srcObject=stream;await live.play().catch(()=>{});setMode('live');showCameraResult(info);
+    toast('Camera open. Read the actual capture format above; high-speed recording is not guaranteed by Safari.');
+  }catch(err){if(requestId===cameraRequestId){stopStream();setMode('empty');cameraReadout('Camera unavailable: '+(err.message||err.name),true);toast('Could not access camera: '+err.message,true);}}
+  finally{if(requestId===cameraRequestId&&refresh)refresh.disabled=false;}
+}
+$('qualityRefresh').addEventListener('click',()=>openCamera());
+$('qualityPriority').addEventListener('change',()=>{if(state.recorder?.state==='recording')return; if(state.mode==='live'&&state.stream)openCamera();else cameraReadout('Preference saved. Open camera to check available modes.');});
 $('flipBtn').addEventListener('click',()=>{state.facing=state.facing==='environment'?'user':'environment';openCamera();});
 const preferredMime=()=>['video/mp4;codecs=avc1.42E01E','video/mp4','video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'].find(t=>MediaRecorder.isTypeSupported?.(t))||'';
 let recordInterval=null;
