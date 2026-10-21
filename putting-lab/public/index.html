@@ -80,6 +80,19 @@
 
 .assist-advanced{border:1px solid #3c543f;background:#17271e;border-radius:12px;overflow:hidden}.assist-advanced summary{padding:15px;color:#daf1d0;font-size:13px;font-weight:700;cursor:pointer;list-style:none}.assist-advanced summary::after{content:'⌄';float:right}.assist-advanced[open] summary::after{content:'⌃'}.assist-advanced summary::-webkit-details-marker{display:none}.assist-advanced .panel{margin:0;border:0;border-top:1px solid #3c543f;border-radius:0;box-shadow:none}
 
+/* v0.7 — auto-marked visual clip review */
+.phase-review{margin:10px 0 12px;background:#10251b;border:1px solid #5c8260;border-radius:12px;padding:12px}
+.phase-review[hidden]{display:none!important}
+.phase-review-head{display:flex;align-items:flex-start;justify-content:space-between;gap:9px;flex-wrap:wrap}
+.phase-review-head strong{color:#d6f6c6;font-size:13px}.phase-review-head small{color:#b8dfae;font-size:11px}
+.phase-review p{color:#bdcec0;font-size:11px;line-height:1.55;margin:8px 0}
+.phase-markers{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:11px 0}
+.phase-chip{text-align:left!important;border-radius:9px!important;border:1px solid #415b47!important;border-left:4px solid var(--phase-color)!important;background:#1a3124!important;color:#f1f7ed!important;padding:9px 7px!important;min-width:0!important;display:flex!important;flex-direction:column;gap:3px;align-items:flex-start;min-height:74px}
+.phase-chip strong{font-size:11px}.phase-chip span{font-size:11px;white-space:nowrap}.phase-chip small{font-size:9px;line-height:1.35;color:#c1d0b8}.phase-chip.selected{outline:2px solid #d8f9ba;outline-offset:1px}.phase-chip.confirmed{background:#294832!important}.phase-chip:disabled{opacity:.63}
+.phase-actions{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}.phase-actions button{min-height:40px;padding:9px 11px!important;font-size:11px!important}
+#phaseSelected,#phaseClipLabel{color:#d6efc3;font-size:11px;line-height:1.5}.phase-note{color:#dfbd82!important}
+.seek-with-phases{position:relative;flex:1;min-width:0;display:flex;align-items:center}.seek-with-phases #seekBar{width:100%;min-width:0}.phase-ticks{position:absolute;pointer-events:none;inset:0 7px;top:50%;height:2px}.phase-tick{position:absolute;top:-8px;width:3px;height:17px;border-radius:2px;box-shadow:0 0 1px 2px #07130f}.phase-tick.confirmed{height:22px;top:-11px}
+@media(max-width:700px){.phase-review{padding:10px 9px}.phase-markers{grid-template-columns:repeat(2,minmax(0,1fr))}.phase-chip{min-height:62px;padding:8px!important}.phase-actions button{flex:1 1 135px}}
 </style>
 
   
@@ -102,7 +115,7 @@
   <main class="main">
     <header class="topbar"><div class="mobile-brand"><span class="brand-logo">◎</span> PUTTING<span class="lime">/</span>LAB</div><div class="topbar-right"><span class="secure">● Private workspace</span><span class="avatar">PL</span></div></header>
     <section id="tab-studio" class="tab active" aria-label="Stroke studio">
-      <div class="page-heading"><div><div class="eyebrow">STROKE ANALYSIS / WORKSPACE 01</div><h1>Stroke studio<span class="lime">.</span></h1><p>Capture. Review. Measure. Improve.</p></div><span class="version-pill">AUTO-ANNOTATE BETA V0.6</span></div>
+      <div class="page-heading"><div><div class="eyebrow">STROKE ANALYSIS / WORKSPACE 01</div><h1>Stroke studio<span class="lime">.</span></h1><p>Capture. Review. Measure. Improve.</p></div><span class="version-pill">AUTO MARK + CLIP V0.7</span></div>
       <div class="studio-layout">
         <div class="studio-main">
           <div class="panel camera-panel">
@@ -118,18 +131,27 @@
             </div>
             <div id="autoClipReview" class="auto-clip-review" hidden aria-live="polite"><strong id="autoClipTitle">Automatic clip review</strong><p id="autoClipSummary"></p><div class="auto-clip-actions"><button class="primary" id="acceptAutoImpact" type="button" disabled>✓ Confirm candidate as impact</button><button class="secondary" id="showFullTake" type="button">View full take</button><button class="secondary" id="autoNextStroke" type="button">↺ Next stroke</button><small id="autoClipTime"></small></div></div>
             
-            <div class="review-workflow" id="reviewWorkflow"><div class="review-guide"><strong>① Scrub video → ② Step frames → ③ Mark moment</strong><span>Timing controls stay right under the video.</span></div><div class="transport" id="transport"><div class="transport-top"><span id="currentTime">00:00.000</span><input id="seekBar" type="range" min="0" max="1000" value="0" step="1" aria-label="Video timeline" disabled/><span id="durationTime">00:00.000</span></div><div class="transport-bottom"><button id="backBtn" title="One frame backward" disabled>−1 FR</button><button id="playBtn" class="play-btn" disabled>▶ Play</button><button id="nextBtn" title="One frame forward" disabled>+1 FR</button><label>Frame rate <select id="fps"><option value="30">30</option><option value="24">24</option><option value="60">60</option><option value="120">120</option><option value="240">240</option></select> fps</label><span class="hint">Adjust to source FPS for stepping</span></div></div><div class="inline-timing-label">MARK CURRENT FRAME <span id="nextMarkHint">Start with Address / start</span></div><div class="milestones"><button id="markStart" class="milestone" disabled><span class="milestone-num">01</span><strong>Address / start</strong><small id="startVal">Tap to mark</small></button><button id="markTransition" class="milestone" disabled><span class="milestone-num">02</span><strong>Transition</strong><small id="transitionVal">Tap to mark</small></button><button id="markImpact" class="milestone" disabled><span class="milestone-num">03</span><strong>Impact</strong><small id="impactVal">Tap to mark</small></button></div></div>
-            <div class="smart-capture" aria-label="Smart capture controls"><div><strong>Auto impact capture <span class="beta">EXPERIMENTAL</span></strong><p>Mount the phone overhead, select the center of a stationary white ball, and arm. The camera records BEFORE a probable putt; local analysis looks for putter approach followed by ball departure. It then opens a short review window around the candidate. Requires confirmation and is not instrument-validated.</p></div><div class="smart-buttons"><button class="secondary" type="button" id="pickROI">⌖ Select ball zone</button><button class="primary" type="button" id="smartArm">◎ Arm auto detection</button><button class="secondary" type="button" id="smartCancel" disabled>Cancel</button></div><small id="smartStatus" role="status" aria-live="polite">Open camera → tap Select ball center → Arm auto detection. Keep the phone still.</small></div>
+            <div class="review-workflow" id="reviewWorkflow"><div class="review-guide"><strong>① Scrub video → ② Step frames → ③ Mark moment</strong><span>Timing controls stay right under the video.</span></div><div class="transport" id="transport"><div class="transport-top"><span id="currentTime">00:00.000</span><div class="seek-with-phases"><input id="seekBar" type="range" min="0" max="1000" value="0" step="1" aria-label="Video timeline" disabled/><div class="phase-ticks" id="phaseTicks" aria-hidden="true"></div></div><span id="durationTime">00:00.000</span></div><div class="transport-bottom"><button id="backBtn" title="One frame backward" disabled>−1 FR</button><button id="playBtn" class="play-btn" disabled>▶ Play</button><button id="nextBtn" title="One frame forward" disabled>+1 FR</button><label>Frame rate <select id="fps"><option value="30">30</option><option value="24">24</option><option value="60">60</option><option value="120">120</option><option value="240">240</option></select> fps</label><span class="hint">Adjust to source FPS for stepping</span></div></div><div class="inline-timing-label">MARK CURRENT FRAME <span id="nextMarkHint">Start with Address / start</span></div><div class="milestones"><button id="markStart" class="milestone" disabled><span class="milestone-num">01</span><strong>Address / start</strong><small id="startVal">Tap to mark</small></button><button id="markTransition" class="milestone" disabled><span class="milestone-num">02</span><strong>Transition</strong><small id="transitionVal">Tap to mark</small></button><button id="markImpact" class="milestone" disabled><span class="milestone-num">03</span><strong>Impact</strong><small id="impactVal">Tap to mark</small></button></div></div>
+            <section id="phaseReview" class="phase-review" hidden aria-label="Detected stroke phases and clip">
+ <div class="phase-review-head"><strong id="phaseHeadline">Suggested stroke phases</strong><small>PROPOSED UNTIL VERIFIED</small></div>
+ <p id="phaseExplainer">Detected events are approximate and require review.</p>
+ <div class="phase-markers" id="phaseMarkers"></div>
+ <div id="phaseSelected">Selected: Impact</div>
+ <div class="phase-actions"><button id="phaseCorrect" type="button" class="secondary">⌖ Correct selected here</button><button id="phaseAcceptAll" type="button" class="primary">✓ Confirm proposals</button></div>
+ <div class="phase-actions"><button id="phaseToggleClip" class="secondary" type="button">▣ View original take</button><button id="phaseExport" class="secondary" type="button">⇩ Export trimmed clip (beta)</button></div>
+ <div id="phaseClipLabel">Review clip</div><p class="phase-note">The in-app replay is clipped without changing the original video. Export depends on browser video encoding support.</p>
+ </section>
+ <div class="smart-capture" aria-label="Smart capture controls"><div><strong>Auto impact capture <span class="beta">EXPERIMENTAL</span></strong><p>Mount the phone overhead, select the center of a stationary white ball, and arm. The camera records BEFORE a probable putt; local analysis looks for putter approach followed by ball departure. It then opens a short review window around the candidate. Requires confirmation and is not instrument-validated.</p></div><div class="smart-buttons"><button class="secondary" type="button" id="pickROI">⌖ Select ball zone</button><button class="primary" type="button" id="smartArm">◎ Arm auto detection</button><button class="secondary" type="button" id="smartCancel" disabled>Cancel</button></div><small id="smartStatus" role="status" aria-live="polite">Open camera → tap Select ball center → Arm auto detection. Keep the phone still.</small></div>
             
             <section id="annotationAssist" aria-label="Smart annotation assistant">
- <h3>Auto analyze · review · correct <span class="beta">V0.6 EXPERIMENTAL</span></h3>
- <p>Let the analyzer find the ball and a possible impact first. Confirm or correct only what needs attention. No new pins are created while reviewing or zooming.</p>
+ <h3>Auto analyze · review · correct <span class="beta">V0.7 EXPERIMENTAL</span></h3>
+ <p>Automatic markers and a short replay window appear after a usable stroke is detected. Inspect and correct the proposed phases; missing phases remain unassigned. No new pins are created while reviewing or zooming.</p>
  <div class="assist-row"><button id="assistAuto" class="primary" type="button">◎ Auto-analyze overhead clip</button><button id="assistCancel" type="button" class="secondary">Cancel scan</button><button id="assistBall" type="button" class="secondary">⌖ Set ball once</button><button id="assistTrackPutter" type="button" class="secondary">⌁ Track putter</button></div><label class="assist-small"><input id="assistAutoOnLoad" type="checkbox" checked> Automatically analyze short overhead uploads</label>
  <div id="assistProposals"><div id="assistPreview"></div></div>
  <div class="assist-choices" role="group" aria-label="Annotation editing mode"><button id="assistReview" class="active" type="button">◉ Review</button><button id="assistEdit" type="button">↔ Move existing</button><button id="assistPlace" type="button">＋ Add new</button></div>
  <div class="assist-row"><strong style="font-size:11px">ZOOM</strong><div class="assist-zoom" role="group" aria-label="Magnification"><button id="assistZoom1" class="secondary active" type="button">1×</button><button id="assistZoom2" class="secondary" type="button">2×</button><button id="assistZoom3" class="secondary" type="button">3×</button></div><button id="assistDelete" class="secondary" type="button">× Delete selected</button><button id="assistUndo" class="secondary" type="button">↶ Undo last</button></div>
  <span id="assistSelection">No marker selected. Zoom or scrub without adding pins.</span>
- <output class="assist-status" id="assistStatus" role="status">Review mode: pinch or zoom without creating pins.</output>
+ <output class="assist-status" id="assistStatus" role="status">Review mode: zoom or scrub. Automatic phase labels appear after analysis.</output>
  <p class="quiet">Automated results are suggestions, not validated face/path measurements. Original video is preserved.</p>
 </section>
 <div class="overlay-dock" id="overlayDock" aria-label="Visual overlay controls"><div class="overlay-heading"><strong>Precision overlays</strong><span class="tag estimated">PROJECTED · IMAGE-SPACE</span></div><div class="overlay-toggles"><label><input id="ovTarget" type="checkbox" checked /> Target</label><label><input id="ovPath" type="checkbox" checked /> Path</label><label><input id="ovFace" type="checkbox" checked /> Face</label><label><input id="ovBall" type="checkbox" checked /> Ball</label><label><input id="ovGhost" type="checkbox" /> Ghost</label></div><div class="overlay-actions"><button type="button" id="impactFreeze" class="secondary">⌖ Freeze impact</button><button type="button" id="saveGhost" class="secondary">◇ Set reference</button><label class="overlay-source">Compare to <select id="ghostSource" aria-label="Select ghost reference"><option value="local">Saved reference</option></select></label><label class="overlay-source">Opacity <input id="ghostOpacity" aria-label="Ghost transparency" type="range" min="15" max="95" value="55" /></label></div><small id="ghostStatus" aria-live="polite">Align reference footage to the same camera position and target. Ghost strokes are visual comparisons, not 3D reconstructions.</small></div>
@@ -821,7 +843,7 @@ setMode(state.mode);
 
 </script>
 <script>
-/* Putting Lab v0.6 — touch-safe annotation + auto-first suggestions.
+/* Putting Lab v0.7 — automatic four-phase overlay + clipped review.
    Proposals are image-space cues and NEVER silently become verified measurements. */
 (() => {
 'use strict';
@@ -935,9 +957,148 @@ function brightBallCandidate(frame){
  }
  return best;
 }
+/* v0.7 inferred stroke timings are proposals only: image-space motion heuristics. */
+const PHASES=[
+ {key:'start',title:'Start',color:'#9ed6ff'},
+ {key:'transition',title:'Transition',color:'#f1d374'},
+ {key:'impact',title:'Impact',color:'#ff987e'},
+ {key:'follow',title:'Follow-through',color:'#b2ee9b'}
+];
+const clipLimit=(x,a,b)=>Math.max(a,Math.min(b,x));
+function inferStrokePhases(samples,impact,duration,ball){
+ if(!Number.isFinite(impact)||impact<=0||impact>=duration)return null;
+ const ordered=samples.filter(q=>Number.isFinite(q.t)).sort((a,b)=>a.t-b.t);
+ const pre=ordered.filter(q=>q.t>=Math.max(0,impact-2.3)&&q.t<impact-.075&&q.global<.085);
+ const post=ordered.filter(q=>q.t>impact+.06&&q.t<=Math.min(duration,impact+1.3)&&q.global<.085);
+ const active=q=>q&&q.motion>.027;
+ const candidates={start:null,transition:null,impact:{t:impact,confidence:'medium',detail:'Ball departure candidate',point:ball||null},follow:null};
+ // Continuous early motion must precede the exit cue. Do not label random motion as address.
+ let onset=-1;
+ for(let i=0;i<pre.length-2;i++)if(active(pre[i])&&[pre[i+1],pre[i+2]].filter(active).length>=1){onset=i;break;}
+ if(onset>=0){const p=pre[onset];candidates.start={t:p.t,confidence:'low',detail:'First sustained local motion; verify address/start',point:p.center||null};}
+ // The reversal cue requires actual radial displacement of a moving image feature.
+ // If the image does not contain that evidence, leave Transition unassigned.
+ if(onset>=0){const seq=pre.slice(onset).filter(q=>active(q)&&q.center&&ball);
+  if(seq.length>=6){const ds=seq.map(q=>Math.hypot((q.center.x-ball.x),(q.center.y-ball.y)));
+   let best=null;
+   for(let i=2;i<seq.length-2;i++){
+    const l=Math.min(...ds.slice(Math.max(0,i-3),i)),r=Math.min(...ds.slice(i+1,Math.min(ds.length,i+4)));
+    const rise=ds[i]-l,fall=ds[i]-r;
+    if(rise>.015&&fall>.015&&seq[i].t>candidates.start.t+.1&&seq[i].t<impact-.11){
+     const score=Math.min(rise,fall);
+     if(!best||score>best.score)best={sample:seq[i],score};
+    }
+   }
+   if(best)candidates.transition={t:best.sample.t,confidence:'low',detail:'Possible reversal of moving landmark; verify',point:best.sample.center};
+  }
+ }
+ // Look for an ending after the strike with locally moving pixels rather than a fixed offset.
+ const moving=post.filter(active);
+ if(moving.length>=2){const last=moving.at(-1);if(last.t>impact+.12)candidates.follow={t:last.t,confidence:'low',detail:'Last observed local movement; verify follow-through',point:last.center||null};}
+ const start=candidates.start?.t??Math.max(0,impact-1.4);
+ const end=candidates.follow?.t??Math.min(duration,impact+.85);
+ const minEnd=Math.min(duration,impact+.38);
+ const clip={start:clipLimit(start-.30,0,Math.max(0,duration-.1)),end:clipLimit(Math.max(end+.35,minEnd),.1,duration)};
+ if(clip.end<=clip.start+.2){clip.start=Math.max(0,impact-.9);clip.end=Math.min(duration,impact+.75);}
+ return {phases:candidates,clip,ball:ball||null,impact,confirmed:false};
+}
+window.PuttingStrokePhaseCore={inferStrokePhases,PHASES};
+
+/* Putting Lab v0.7 — video-phase overlays, review/correction, virtual clip and export. */
+const phaseState={data:null,selected:'impact',showFull:false,exporting:false};
+window.PuttingPhaseReview=phaseState;
+const phaseID=key=>'phase-'+key;
+function updatePhaseState(data){phaseState.data=data;phaseState.selected='impact';phaseState.showFull=false;
+ if(data){state.autoClip={...data.clip};state.autoDetection={time:data.impact,confirmed:false,source:'phase-proposal',sampleMs:null};}
+ else{state.autoClip=null;state.autoDetection=null;}
+ renderPhasePanel();redraw();}
+function phaseTime(key){return phaseState.data?.phases?.[key]?.t??null;}
+function activeClip(){return phaseState.data&&!phaseState.showFull?phaseState.data.clip:null;}
+function renderPhasePanel(){
+ const box=$a('phaseReview'),data=phaseState.data;box.hidden=!data;
+ if(!data){$a('phaseTicks').replaceChildren();return;}
+ const clip=activeClip(),lo=clip?.start??0,hi=clip?.end??video.duration;
+ if(Number.isFinite(hi)&&hi>lo){$a('seekBar').min=String(Math.round(lo*1000));$a('seekBar').max=String(Math.round(hi*1000));}
+ const list=$a('phaseMarkers');list.replaceChildren();
+ for(const p of PHASES){const proposal=data.phases[p.key];const b=document.createElement('button');b.type='button';b.className='phase-chip'+(phaseState.selected===p.key?' selected':'')+(proposal?.confirmed?' confirmed':'');b.style.setProperty('--phase-color',p.color);b.dataset.phase=p.key;
+  const k=document.createElement('strong');k.textContent=p.title;const t=document.createElement('span');t.textContent=proposal?clock(proposal.t):'Needs review';const flag=document.createElement('small');flag.textContent=proposal?.confirmed?'Confirmed':proposal?'Proposed · '+proposal.confidence:'Not detected';b.append(k,t,flag);b.disabled=!proposal;b.title=proposal?.detail||'This phase needs manual verification; no timestamp was guessed.';
+  b.addEventListener('click',()=>{phaseState.selected=p.key;video.pause();video.currentTime=proposal.t;renderPhasePanel();});list.append(b);
+ }
+ const hits=$a('phaseTicks');hits.replaceChildren();if(Number.isFinite(hi)&&hi>lo){for(const p of PHASES){const entry=data.phases[p.key];if(!entry||entry.t<lo||entry.t>hi)continue;const tick=document.createElement('span');tick.className='phase-tick'+(entry.confirmed?' confirmed':'');tick.style.left=((entry.t-lo)/(hi-lo)*100)+'%';tick.style.background=p.color;tick.title=p.title+' '+clock(entry.t);hits.append(tick);}}
+ const available=PHASES.filter(p=>data.phases[p.key]).length;const confirmed=PHASES.filter(p=>data.phases[p.key]?.confirmed).length;
+ $a('phaseHeadline').textContent=`${available}/4 phases proposed · ${confirmed} verified`;
+ $a('phaseExplainer').textContent=`Image-space timing candidates; not precise putter geometry. Tap a colored phase to inspect its frame, step as needed, then Correct selected here. ${available<4?'Unavailable phases are intentionally blank.':''}`;
+ $a('phaseSelected').textContent='Selected: '+PHASES.find(p=>p.key===phaseState.selected).title+(data.phases[phaseState.selected]?' — '+clock(data.phases[phaseState.selected].t):' — unavailable');
+ $a('phaseCorrect').disabled=!data.phases[phaseState.selected];
+ $a('phaseAcceptAll').disabled=!data.phases.impact;
+ $a('phaseToggleClip').textContent=phaseState.showFull?'✂ Review suggested clip':'▣ View original take';
+ $a('phaseClipLabel').textContent=phaseState.showFull?`Original ${clock(0)}–${clock(video.duration)}`:`Auto clip ${clock(data.clip.start)}–${clock(data.clip.end)} (${Math.max(0,data.clip.end-data.clip.start).toFixed(2)}s)`;
+}
+function validatePhaseOrder(data){const p=data.phases,keys=['start','transition','impact','follow'];let last=-Infinity;for(const key of keys){if(!p[key])continue;if(p[key].t<=last+.005)return false;last=p[key].t;}return true;}
+function applyConfirmedPhases(){const d=phaseState.data;if(!d||!validatePhaseOrder(d)){assistMsg('Phases are out of order. Use Correct selected here before confirming.');return false;}
+ for(const key of ['start','transition','impact'])if(d.phases[key]?.confirmed)state.marks[key]=d.phases[key].t;
+ state.followThrough=d.phases.follow?.confirmed?d.phases.follow.t:null;
+ if(d.phases.impact?.confirmed){state.autoDetection=state.autoDetection||{};state.autoDetection.confirmed=true;}
+ setMetrics();if(typeof refreshTimingGuide==='function')refreshTimingGuide();return true;
+}
+$a('phaseCorrect').addEventListener('click',()=>{const d=phaseState.data,key=phaseState.selected;if(!d?.phases[key])return;const t=video.currentTime;if(!Number.isFinite(t)||t<0||t>=video.duration)return;
+ const original=d.phases[key];d.phases[key]={...original,t,confirmed:true,confidence:'human',detail:'Reviewed/corrected at video frame'};
+ if(!validatePhaseOrder(d)){d.phases[key]=original;assistMsg('Cannot move that event past an adjacent event. Adjust neighboring markers first.');return;}
+ const order=['start','transition','impact','follow'];const current=d.phases;const beg=current.start?.t??Math.max(0,current.impact.t-1.4),tail=current.follow?.t??Math.min(video.duration,current.impact.t+.85);d.clip={start:Math.max(0,beg-.3),end:Math.min(video.duration,Math.max(tail+.35,current.impact.t+.4))};
+ applyConfirmedPhases();renderPhasePanel();redraw();assistMsg(`${key} corrected and confirmed at ${clock(t)}.`);});
+$a('phaseAcceptAll').addEventListener('click',()=>{const d=phaseState.data;if(!d||!validatePhaseOrder(d))return assistMsg('Phase order needs correction before confirmation.');
+ for(const p of PHASES)if(d.phases[p.key])d.phases[p.key].confirmed=true;
+ applyConfirmedPhases();renderPhasePanel();redraw();assistMsg('Available phase proposals confirmed by you. Missing phases remain unset.');});
+$a('phaseToggleClip').addEventListener('click',()=>{phaseState.showFull=!phaseState.showFull;renderPhasePanel();const clip=activeClip();if(clip&&(video.currentTime<clip.start||video.currentTime>clip.end))video.currentTime=clip.start;redraw();});
+function beginReviewClip(){const clip=activeClip();if(clip){video.pause();video.currentTime=clip.start;}renderPhasePanel();}
+video.addEventListener('timeupdate',()=>{const d=phaseState.data;if(d&&!phaseState.showFull&&video.currentTime>=d.clip.end-.025&&!video.paused){video.pause();video.currentTime=d.clip.start;}});
+// Safe low-latency overlay: phase cue labels and image-space activity centroids, NOT claimed clubhead contact locations.
+const oldPhaseRedraw=redraw;redraw=function(){oldPhaseRedraw();drawPhaseOverlay();};
+function drawPhaseOverlay(){if(state.mode!=='review'||!video.videoWidth||!phaseState.data)return;const d=phaseState.data,f=videoFit(),time=video.currentTime;
+ ctx.save();ctx.lineWidth=2;ctx.font='bold 11px -apple-system, Arial, sans-serif';
+ const ball=d.ball;if(ball){const center=toScreen(ball,f);ctx.setLineDash([4,4]);ctx.strokeStyle='#9dd5ff';ctx.beginPath();ctx.arc(center.x,center.y,11,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#d5f0ff';ctx.fillText('BALL · PROPOSED',Math.min(f.width-125,center.x+15),Math.max(15,center.y-13));}
+ // Persistent faded positions are reference annotations from DIFFERENT frames, not simultaneous clubhead locations.
+ for(const p of PHASES){const mark=d.phases[p.key];if(!mark?.point||!Number.isFinite(mark.point.x)||!Number.isFinite(mark.point.y))continue;
+  const v=toScreen(mark.point,f);ctx.globalAlpha=Math.abs(mark.t-time)<.14?1:.43;ctx.fillStyle=p.color;ctx.strokeStyle='#0a1c12';ctx.lineWidth=2;
+  ctx.beginPath();ctx.arc(v.x,v.y,8,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle='#102015';ctx.font='bold 9px Arial';ctx.textAlign='center';ctx.fillText(p.title[0].toUpperCase(),v.x,v.y+3);ctx.textAlign='left';
+ }
+ ctx.globalAlpha=1;ctx.font='bold 11px -apple-system, Arial, sans-serif';
+ const nearest=PHASES.map(p=>({p,entry:d.phases[p.key]})).filter(q=>q.entry).sort((a,b)=>Math.abs(a.entry.t-time)-Math.abs(b.entry.t-time))[0];
+ if(nearest){const p=nearest.p,q=nearest.entry,close=Math.abs(q.t-time)<=.12;const lx=12,ly=20;
+  ctx.fillStyle='rgba(6,22,13,.86)';ctx.fillRect(lx-5,ly-13,Math.min(f.width-18,250),29);ctx.fillStyle=p.color;ctx.fillText((close?'● ':'◌ ')+p.title.toUpperCase()+' · '+clock(q.t)+(q.confirmed?' ✓':' ?'),lx,ly+2);
+  if(close&&q.point&&Number.isFinite(q.point.x)&&Number.isFinite(q.point.y)){const loc=toScreen(q.point,f);ctx.strokeStyle=p.color;ctx.lineWidth=2;ctx.beginPath();ctx.arc(loc.x,loc.y,9,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.moveTo(loc.x-14,loc.y);ctx.lineTo(loc.x+14,loc.y);ctx.moveTo(loc.x,loc.y-14);ctx.lineTo(loc.x,loc.y+14);ctx.stroke();}
+ }
+ ctx.restore();}
+async function exportPhaseClip(){const d=phaseState.data;if(!d||phaseState.exporting)return;const clip=d.clip;
+ if(!window.MediaRecorder||!HTMLCanvasElement.prototype.captureStream){assistMsg('This browser cannot encode a trimmed video. The in-app clip is still available and the original is preserved.');return;}
+ const mime=['video/mp4','video/webm;codecs=vp8','video/webm'].find(t=>MediaRecorder.isTypeSupported?.(t));if(!mime){assistMsg('Browser video export format unavailable. The in-app review clip remains usable.');return;}
+ phaseState.exporting=true;$a('phaseExport').disabled=true;const original=video.currentTime,wasPlaying=!video.paused;const oldMuted=video.muted;let stream=null,recorder=null;
+ try{
+  const c=document.createElement('canvas'),width=Math.min(960,video.videoWidth),height=Math.max(2,Math.round(width*video.videoHeight/video.videoWidth));c.width=width;c.height=height;
+  const cc=c.getContext('2d');stream=c.captureStream(30);recorder=new MediaRecorder(stream,{mimeType:mime});const parts=[];
+  recorder.ondataavailable=e=>{if(e.data?.size)parts.push(e.data);};
+  const finished=new Promise((resolve,reject)=>{recorder.onstop=resolve;recorder.onerror=e=>reject(e.error||Error('Video encoding failed'));});
+  video.pause();await seekForTracking(clip.start);video.muted=true;cc.drawImage(video,0,0,width,height);recorder.start(250);
+  let active=true;const render=()=>{if(!active)return;try{cc.drawImage(video,0,0,width,height);}catch(_){}if(video.currentTime>=clip.end-.03||video.paused){active=false;recorder.stop();return;}requestAnimationFrame(render);};
+  await video.play();requestAnimationFrame(render);
+  await Promise.race([finished,new Promise((_,reject)=>setTimeout(()=>reject(Error('Export timed out')),Math.ceil((clip.end-clip.start+8)*1000)))]);
+  active=false;if(!parts.length)throw Error('No encoded video received');const blob=new Blob(parts,{type:mime}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`putting-lab-stroke-${Date.now()}.${mime.includes('mp4')?'mp4':'webm'}`;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),8000);
+  assistMsg('Trimmed copy generated. Original recording was not modified.');
+ }catch(e){if(recorder?.state==='recording')recorder.stop();assistMsg('Trimmed export unavailable: '+e.message+'. You can still review the bounded clip.');}
+ finally{stream?.getTracks().forEach(t=>t.stop());video.muted=oldMuted;video.pause();if(Number.isFinite(original)&&original<video.duration)video.currentTime=original;if(wasPlaying&&phaseState.showFull)video.play().catch(()=>{});phaseState.exporting=false;$a('phaseExport').disabled=false;}
+}
+$a('phaseExport').addEventListener('click',exportPhaseClip);
+function measureFrameMotion(gray,prev,w,h,ball,t){if(!prev||!ball)return{t,motion:0,center:null};const x0=Math.round(ball.x*w),y0=Math.round(ball.y*h),inner=(w*.019)**2,outer=(w*.16)**2;
+ let active=0,count=0,sumx=0,sumy=0;const xmin=Math.max(0,Math.round(x0-w*.16)),xmax=Math.min(w-1,Math.round(x0+w*.16)),ymin=Math.max(0,Math.round(y0-w*.16)),ymax=Math.min(h-1,Math.round(y0+w*.16));
+ for(let y=ymin;y<=ymax;y++)for(let x=xmin;x<=xmax;x++){const rr=(x-x0)**2+(y-y0)**2;if(rr<inner||rr>outer)continue;count++;if(Math.abs(gray[y*w+x]-prev[y*w+x])>25){active++;sumx+=x;sumy+=y;}}
+ return {t,motion:active/Math.max(count,1),center:active>5?{x:sumx/active/w,y:sumy/active/h}:null};
+}
+function resetPhaseUI(){phaseState.data=null;phaseState.showFull=false;phaseState.selected='impact';state.followThrough=null;$a('phaseReview').hidden=true;$a('phaseTicks').replaceChildren();}
+
 function showPending(){const p=assist.pending,box=$a('assistProposals'),preview=$a('assistPreview');preview.replaceChildren();box.classList.toggle('visible',!!p);
  if(!p)return;
  const lines=[];
+ renderPhasePanel();
  if(p.ball)lines.push(`Ball reference: proposed at ${Math.round(p.ball.x*100)}%, ${Math.round(p.ball.y*100)}% of image (check visually).`);
  else lines.push('Ball center: not confidently located. Use “Set ball once” then retry.');
  if(Number.isFinite(p.impact))lines.push(`Impact candidate: ~${p.impact.toFixed(3)} seconds, sampled at ${p.interval} ms; NOT instrument-grade timing.`);
@@ -951,46 +1112,61 @@ function showPending(){const p=assist.pending,box=$a('assistProposals'),preview=
   button('▶ Inspect impact frame',()=>{video.pause();video.currentTime=p.impact;},false);
   button('✓ Confirm impact frame',()=>{video.pause(); // User must first inspect visually and may step frames. Use CURRENT video timestamp.
    if(Math.abs(video.currentTime-p.impact)>1){assistMsg('Move to the proposed impact window to confirm it.');return;}
-   state.marks.impact=video.currentTime;
-   if(state.autoDetection)state.autoDetection.confirmed=true;
+   if(phaseState.data?.phases.impact){phaseState.data.phases.impact={...phaseState.data.phases.impact,t:video.currentTime,confirmed:true,confidence:'human'};applyConfirmedPhases();renderPhasePanel();}
+   else{state.marks.impact=video.currentTime;if(state.autoDetection)state.autoDetection.confirmed=true;}
    redrawAssist();assistMsg(`Confirmed impact at ${video.currentTime.toFixed(3)}s. Start/transition remain unmeasured until verified.`);
   },true);
  }
  button('Dismiss suggestions',()=>{assist.pending=null;showPending();});
 }
 // Auto-clip analysis for imported videos. Candidate detection is conservative; sampling/lighting errors are explicit.
-async function analyzeVideo(){
+// Analyze uploaded footage, or refine a live-capture candidate using its recorded frames.
+async function analyzeVideo({impactSeed=null,ballSeed=null,fromLive=false}={}){
  if(state.mode!=='review'||state.busy)return;
  if(!Number.isFinite(video.duration)||video.duration<=.25){assistMsg('Wait for video metadata to load.');return;}
- if($a('angle').value!=='overhead'){assistMsg('Select Overhead camera angle before automatic overhead detection.');return;}
- const token=++assist.scanId;const resume=video.currentTime;const duration=video.duration;
+ if($a('angle').value!=='overhead'){assistMsg('Choose the overhead camera angle to use the overhead detector.');return;}
+ const token=++assist.scanId,resume=video.currentTime,duration=video.duration;
  video.pause();state.busy=true;$a('assistAuto').disabled=true;$a('assistProposals').classList.remove('visible');assist.pending=null;
  try{
-  const maxT=Math.min(duration-.02,20),step=Math.max(1/18,maxT/280),timestamps=[];
-  let firstFrame;
-  await seekForTracking(Math.min(.08,maxT));firstFrame=getSmallFrame();
-  const originalBall=state.ballMarks[0]||smartCapture.roi;
-  const foundBall=originalBall?{x:originalBall.x,y:originalBall.y,t:.08,score:100}:brightBallCandidate(firstFrame);
-  if(!foundBall){assistMsg('Automatic analysis could not confidently identify the ball. Tap “Set ball once” on a paused frame, then run again.');return;}
-  const roi={x:foundBall.x,y:foundBall.y};const det=new ImpactCandidateDetector(192,Math.max(60,Math.round(192*(video.videoHeight||9)/(video.videoWidth||16))),roi);
-  let candidate=null,firstApproach=null,cameraMotion=0,samples=0,qualityWarnings=[];
-  for(let t=.08;t<=maxT+.001;t+=step){
-   if(token!==assist.scanId||state.mode!=='review')throw Error('Analysis canceled by a new video');
+  const maxT=Math.min(duration-.02,20),step=Math.max(1/18,maxT/280);
+  const startT=Number.isFinite(impactSeed)?Math.max(.02,impactSeed-2.5):.08;
+  await seekForTracking(Math.min(startT,maxT));const firstFrame=getSmallFrame();
+  const originalBall=ballSeed||state.ballMarks[0]||(!fromLive?null:smartCapture.roi);
+  const foundBall=originalBall?{x:originalBall.x,y:originalBall.y,t:startT,score:100}:brightBallCandidate(firstFrame);
+  if(!foundBall){resetPhaseUI();assistMsg('Could not locate the ball confidently. Select its center once and retry. No markers were guessed.');return;}
+  const roi={x:foundBall.x,y:foundBall.y};const h=Math.max(60,Math.round(192*(video.videoHeight||9)/(video.videoWidth||16)));
+  const det=Number.isFinite(impactSeed)?null:new ImpactCandidateDetector(192,h,roi);
+  let candidate=Number.isFinite(impactSeed)?{time:impactSeed*1000,status:'candidate',sampleMs:null}:null;
+  let cameraMotion=0,samples=0,firstApproach=null,previous=null,trace=[];
+  let limit=Number.isFinite(impactSeed)?Math.min(maxT,impactSeed+1.3):maxT;
+  for(let t=startT;t<=limit+.002;t+=step){
+   if(token!==assist.scanId||state.mode!=='review')throw Error('Analysis canceled (new clip or user request)');
    await seekForTracking(Math.min(maxT,t));const frame=getAssistFrame();samples++;
-   const finding=det.sample(frame.gray,Math.round(t*1000));
+   const signal=measureFrameMotion(frame.gray,previous,frame.w,frame.h,foundBall,t);
+   const finding=det?det.sample(frame.gray,Math.round(t*1000)):{status:'ready',global:0};
+   signal.global=finding.global||0;trace.push(signal);
    if(finding.status==='camera-moving')cameraMotion++;
    if(finding.status==='approach'&&firstApproach===null)firstApproach=t;
-   if(finding.status==='candidate'){candidate=finding;break;}
-   if(samples%16===0){assistMsg(`Analyzing overhead frames… ${Math.round(t/maxT*100)}%. Keep the page open.`);await new Promise(r=>setTimeout(r,0));}
+   if(finding.status==='candidate'&&!candidate){candidate=finding;limit=Math.min(maxT,finding.time/1000+1.25);}
+   previous=frame.gray;
+   if(samples%15===0){assistMsg(`Scanning stroke frames… ${Math.round(t/Math.max(.01,limit)*100)}%`);await new Promise(r=>setTimeout(r,0));}
   }
-  if(cameraMotion>Math.max(3,samples*.16))qualityWarnings.push('Camera movement disrupted detection');
-  const plausible=candidate&&cameraMotion<=Math.max(3,samples*.16);
-  assist.pending={ball:foundBall,impact:plausible?candidate.time/1000:null,start:firstApproach,interval:Math.round(step*1000),samples,reason:qualityWarnings.join('; ')};
+  const reject=!candidate||(cameraMotion>Math.max(3,samples*.16));
+  const warning=reject?(cameraMotion>Math.max(3,samples*.16)?'Camera movement prevented reliable detection':'No convincing ball departure after putter approach'):' ';
+  assist.pending={ball:foundBall,impact:reject?null:candidate.time/1000,start:firstApproach,interval:Math.round(step*1000),samples,reason:reject?warning:''};
+  if(!reject){
+   const plan=inferStrokePhases(trace,candidate.time/1000,duration,foundBall);
+   if(plan){updatePhaseState(plan);$a('autoClipReview').hidden=true;
+    video.currentTime=plan.clip.start;assistMsg(`Stroke candidate found. ${PHASES.filter(p=>plan.phases[p.key]).length}/4 phases proposed on the video and timeline. Inspect/correct then confirm. ${samples} frames sampled.`);
+   }
+  }else{resetPhaseUI();assistMsg(`No reliable stroke clip created (${samples} samples). ${warning}. Keep the full video and correct the ball reference if needed.`);}
   showPending();
-  if(plausible){video.currentTime=Math.max(0,candidate.time/1000-.16);assistMsg(`Possible impact found around ${(candidate.time/1000).toFixed(2)}s. Inspect the frame, then confirm or correct it. ${samples} samples checked.`);}
-  else assistMsg(`No sufficiently credible impact detected (${samples} frames). ${qualityWarnings.join('; ')||'Check ball center, overhead lighting and camera stability.'} No impact was assigned.`);
- }catch(err){assistMsg('Auto scan stopped: '+err.message);}finally{state.busy=false;$a('assistAuto').disabled=false;try{if(!Number.isFinite(assist.pending?.impact))await seekForTracking(Math.min(Math.max(0,resume),video.duration-.001));}catch(e){}setMetrics();}
+ }catch(err){if(token===assist.scanId)assistMsg('Auto scan stopped: '+err.message);}
+ finally{state.busy=false;$a('assistAuto').disabled=false;
+  if(token===assist.scanId&&!phaseState.data)try{await seekForTracking(Math.min(Math.max(0,resume),video.duration-.001));}catch(e){}
+  if(token===assist.scanId){setMetrics();renderPhasePanel();}}
 }
+
 $a('assistAuto').addEventListener('click',analyzeVideo);
 $a('assistTrackPutter').addEventListener('click',()=>{
  if(!assists()){assistMsg('Load an overhead clip first.');return;}
@@ -1008,10 +1184,17 @@ video.addEventListener('loadedmetadata',()=>{
 // Present live camera candidate as a suggestion; never silently confirm timing.
 const previousShowAutoClip=showAutoClip;
 showAutoClip=function(info){previousShowAutoClip(info);if(info?.found&&Number.isFinite(state.autoDetection?.time)){
- assist.pending={ball:smartCapture.roi?{...smartCapture.roi,t:0.05}:null,impact:state.autoDetection.time,interval:Math.round(info.sampleMs||100),start:null};showPending();assistMsg('Automatic live-camera candidate is ready for review. Confirm its frame before analysis.');}}
+ const t=state.autoDetection.time,ball=smartCapture.roi?{...smartCapture.roi}:null;
+ assist.pending={ball:ball?{...ball,t:0.05}:null,impact:t,interval:Math.round(info.sampleMs||100),start:null};showPending();
+ assistMsg('Camera found a possible impact. Analyzing the recorded stroke phases now…');
+ const file=state.fileUrl;
+ setTimeout(()=>{if(state.fileUrl===file&&state.mode==='review'&&!state.busy)analyzeVideo({impactSeed:t,ballSeed:ball,fromLive:true});},300);
+}}
 // Avoid phantom points from clearing or changing clips; do not carry over edit state.
 const previousLoad=loadVideo;
-loadVideo=async function(file,options){assist.scanId++;resetViewport();return previousLoad(file,options);};
+loadVideo=async function(file,options){assist.scanId++;resetPhaseUI();resetViewport();return previousLoad(file,options);};
+const originalRecordForSave=recordForSave;
+recordForSave=function(){const result=originalRecordForSave();result.strokePhases=phaseState.data?structuredClone(phaseState.data.phases):null;result.followThrough=state.followThrough??null;result.reviewClip=phaseState.data?{...phaseState.data.clip}:null;return result;};
 // Camera workflow remains untouched and uses its existing explicit ROI selection.
 const oldReset=resetMarks;
 resetMarks=function(){oldReset();assist.selected=null;redrawAssist();};
