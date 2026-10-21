@@ -93,6 +93,18 @@
 #phaseSelected,#phaseClipLabel{color:#d6efc3;font-size:11px;line-height:1.5}.phase-note{color:#dfbd82!important}
 .seek-with-phases{position:relative;flex:1;min-width:0;display:flex;align-items:center}.seek-with-phases #seekBar{width:100%;min-width:0}.phase-ticks{position:absolute;pointer-events:none;inset:0 7px;top:50%;height:2px}.phase-tick{position:absolute;top:-8px;width:3px;height:17px;border-radius:2px;box-shadow:0 0 1px 2px #07130f}.phase-tick.confirmed{height:22px;top:-11px}
 @media(max-width:700px){.phase-review{padding:10px 9px}.phase-markers{grid-template-columns:repeat(2,minmax(0,1fr))}.phase-chip{min-height:62px;padding:8px!important}.phase-actions button{flex:1 1 135px}}
+
+/* v0.8: independent capture workspaces and evidence-gated metric proposals */
+.workspace-choice{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:0 0 17px;max-width:950px}
+.workspace-choice button{background:#172921;border:1px solid #405848;color:#d6e6d5;border-radius:10px;padding:15px 10px;font-weight:800;font-size:13px;min-height:48px}
+.workspace-choice button.active{background:#385b32;color:#fff;border-color:#a8e17a}
+.live-stage{max-width:950px}.live-stage .panel.camera-panel{margin:0}.live-stage .camera-panel{border-color:#577a52}
+.focus-note{max-width:950px;padding:14px;background:#16271e;border-left:3px solid #a1d97e;color:#cce0c7;border-radius:9px;margin:0 0 13px;font-size:12px;line-height:1.6}.focus-note strong{color:#e3f5da}.focus-note.subnote{margin-top:16px;border-left-color:#607b74}
+.capture-profiles{max-width:950px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px;background:#12251c;border:1px solid #496146;border-radius:11px;margin-bottom:12px}.capture-profiles div{display:grid;gap:6px}.capture-profiles strong{font-size:14px}.capture-profiles span{font-size:11px;color:#c2d6c1}.capture-profiles label{display:grid;gap:5px;font-size:11px;color:#c4e0be}.capture-profiles select{padding:10px;border:1px solid #60745d;background:#1a2f22;color:#fff;border-radius:8px;max-width:220px}
+.evidence-metrics{background:#102218;border:1px solid #4d6d4b;border-radius:12px;padding:13px;margin:14px 0}.evidence-head{display:flex;align-items:center;gap:8px;justify-content:space-between;flex-wrap:wrap}.evidence-head strong{color:#d3f4c4;font-size:14px}.evidence-metrics p{color:#bcd3b9;font-size:11px;line-height:1.55;margin:8px 0}
+.evidence-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0}.evidence-metric{border:1px solid #3a5542;background:#192e23;padding:11px 10px;border-radius:8px;min-width:0}.evidence-metric small{color:#a8c7aa;font-size:10px;font-weight:700;display:block}.evidence-metric strong{color:#efffea;font-size:16px;display:block;margin:5px 0;overflow-wrap:anywhere}.evidence-metric span{font-size:10px;color:#bad1b8;line-height:1.4;display:block}.evidence-metric .evidence-flag{font-size:9px;padding:3px 6px;background:#314335;display:inline-block;border-radius:5px;color:#d0e6c5;margin-bottom:5px}.evidence-metric .evidence-flag.unavailable{background:#3e332c;color:#e8c9a4}.evidence-metric .evidence-flag.proposed{background:#3e4326;color:#e5ef9e}.evidence-metric .evidence-flag.verified{background:#275c35;color:#d4f4c6}.evidence-footer{display:flex;gap:8px;flex-wrap:wrap}.evidence-footer button{font-size:11px;min-height:39px}.evidence-advisory{border-top:1px solid #304735;padding-top:10px!important}
+body.workspace-live #tab-live .studio-layout{max-width:950px}body.workspace-live .video-toolbar .file-button,body.workspace-live #emptyUpload{display:none!important}body.workspace-upload #cameraBtn,body.workspace-upload #recordBtn,body.workspace-upload #flipBtn,body.workspace-upload #emptyCamera,body.workspace-upload .smart-capture{display:none!important}body.workspace-upload .camera-actual{display:none}.live-stage .camera-panel .review-workflow,.live-stage .camera-panel #annotationAssist,.live-stage .camera-panel #phaseReview{max-width:100%}
+@media(max-width:700px){.workspace-choice{gap:6px}.workspace-choice button{font-size:11px;padding:13px 5px}.capture-profiles{flex-direction:column;align-items:stretch}.capture-profiles select{max-width:100%;width:100%}.evidence-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.evidence-metric strong{font-size:14px}}
 </style>
 
   
@@ -103,7 +115,8 @@
     <a class="brand" href="#studio" aria-label="Putting Lab home"><span class="brand-logo">◎</span><span><strong>PUTTING<span class="lime">/</span>LAB</strong><small>PERFORMANCE STUDIO</small></span></a>
     <div class="sidebar-label">WORKSPACE</div>
     <nav class="nav" aria-label="Primary navigation">
-      <button class="nav-btn active" data-tab="studio"><span>◉</span> Stroke studio</button>
+      <button class="nav-btn active" data-tab="live"><span>◉</span> Live auto-detection</button>
+      <button class="nav-btn" data-tab="studio"><span>↑</span> Upload & analyze</button>
       <button class="nav-btn" data-tab="sessions"><span>▤</span> Sessions</button>
       <button class="nav-btn" data-tab="trends"><span>⌁</span> Performance</button>
       <button class="nav-btn" data-tab="fit"><span>⚖</span> Putter fitting</button>
@@ -114,12 +127,23 @@
   </aside>
   <main class="main">
     <header class="topbar"><div class="mobile-brand"><span class="brand-logo">◎</span> PUTTING<span class="lime">/</span>LAB</div><div class="topbar-right"><span class="secure">● Private workspace</span><span class="avatar">PL</span></div></header>
-    <section id="tab-studio" class="tab active" aria-label="Stroke studio">
-      <div class="page-heading"><div><div class="eyebrow">STROKE ANALYSIS / WORKSPACE 01</div><h1>Stroke studio<span class="lime">.</span></h1><p>Capture. Review. Measure. Improve.</p></div><span class="version-pill">AUTO MARK + CLIP V0.7</span></div>
+    <section id="tab-live" class="tab active" aria-label="Dedicated live automatic putting detection">
+      <div class="page-heading"><div><div class="eyebrow">WORKSPACE 01 / FIXED IPHONE CAMERA</div><h1>Live putting detection<span class="lime">.</span></h1><p>Mount the phone, acquire the ball, arm once, putt, then verify the clipped stroke.</p></div><span class="version-pill">LIVE / V0.8</span></div>
+      <div class="workspace-choice" role="group" aria-label="Analysis workspace"><button data-tab="live" class="active" type="button">◉ Live auto-detection</button><button data-tab="studio" type="button">↑ Video upload analysis</button></div>
+      <div class="focus-note"><strong>Hands-free capture, human-verified results.</strong> Auto-detection first identifies a stationary ball and a possible departure after putter movement. It keeps the recording and proposes stroke phases. Face, path and velocity require sufficient visual evidence and calibration before numeric results are shown.</div>
+      <div id="liveStage" class="live-stage"></div>
+      <div class="focus-note subnote"><strong>Live setup:</strong> iPhone mounted steady and overhead; ball in view; select its center once if automatic acquisition fails. Browser camera frame rate may be lower than requested. Upload existing high-speed recordings in the other workspace.</div>
+    </section>
+    <section id="tab-studio" class="tab" aria-label="Dedicated video upload and analysis">
+      <div class="page-heading"><div><div class="eyebrow">WORKSPACE 02 / RECORDED FOOTAGE</div><h1>Video upload analysis<span class="lime">.</span></h1><p>Import, automatically inspect, correct proposals, and save your stroke.</p></div><span class="version-pill">REVIEW / V0.8</span></div>
+      <div class="workspace-choice" role="group" aria-label="Analysis workspace"><button data-tab="live" type="button">◉ Live auto-detection</button><button data-tab="studio" class="active" type="button">↑ Video upload analysis</button></div>
+      <div class="capture-profiles"><div><strong>Analysis view</strong><span id="cameraProfileHelp">Overhead: ball motion, start direction, putter path and face observations.</span></div><label for="captureProfile">Camera profile<select id="captureProfile"><option value="overhead">Overhead stroke</option><option value="side">Low side-on ball roll (experimental)</option></select></label></div>
+      <div class="focus-note" id="profileDescription">Overhead video supports horizontal ball movement and projected putter delivery. Use a stable mount and a visible target line. All numeric metrics need a verified spatial reference.</div>
       <div class="studio-layout">
         <div class="studio-main">
+          <div id="uploadStage"></div>
           <div class="panel camera-panel">
-            <div class="panel-head"><div><h2>Video analyzer</h2><p>Record a stroke or load footage from your device</p></div><div class="status" id="mediaStatus">NO VIDEO</div></div>
+            <div class="panel-head"><div><h2>Camera and clip</h2><p id="workspaceCameraSubtitle">Automatically analyze recorded footage</p></div><div class="status" id="mediaStatus">NO VIDEO</div></div>
             <div class="video-shell" id="videoShell">
               <div class="empty-state" id="emptyState"><div class="empty-icon">◎</div><h3>Your stroke starts here</h3><p>Upload a video or enable your camera. Video stays on your device unless you export it; browser speech services may process voice externally.</p><div class="empty-actions"><button class="primary" id="emptyUpload">↑ Upload video</button><button class="secondary" id="emptyCamera">◉ Open camera</button></div><small>MP4 / MOV / WebM · Short clips recommended</small></div>
               <video id="reviewVideo" playsinline preload="metadata"></video>
@@ -154,6 +178,14 @@
  <output class="assist-status" id="assistStatus" role="status">Review mode: zoom or scrub. Automatic phase labels appear after analysis.</output>
  <p class="quiet">Automated results are suggestions, not validated face/path measurements. Original video is preserved.</p>
 </section>
+
+            <section id="evidenceMetrics" class="evidence-metrics" aria-label="Proposed measurements requiring confirmation">
+              <div class="evidence-head"><strong>Detected measurement candidates</strong><span class="beta">REVIEW BEFORE USING</span></div>
+              <p id="evidenceSummary">Import an overhead clip or arm the live camera. Measurements appear only when their source evidence is available.</p>
+              <div class="evidence-grid" id="evidenceGrid"></div>
+              <div class="evidence-footer"><button id="reviewEvidence" type="button" class="secondary">↔ Review tracking points</button><button id="refreshEvidence" type="button" class="secondary">↻ Recheck evidence</button></div>
+              <p class="evidence-advisory">Overhead video cannot recover vertical launch angle or reliable backspin/skid rate. For those, use a low side-on 240 fps video with a clearly marked ball. Even then, numeric spin/skid requires rotation tracking that has not yet been validated.</p>
+            </section>
 <div class="overlay-dock" id="overlayDock" aria-label="Visual overlay controls"><div class="overlay-heading"><strong>Precision overlays</strong><span class="tag estimated">PROJECTED · IMAGE-SPACE</span></div><div class="overlay-toggles"><label><input id="ovTarget" type="checkbox" checked /> Target</label><label><input id="ovPath" type="checkbox" checked /> Path</label><label><input id="ovFace" type="checkbox" checked /> Face</label><label><input id="ovBall" type="checkbox" checked /> Ball</label><label><input id="ovGhost" type="checkbox" /> Ghost</label></div><div class="overlay-actions"><button type="button" id="impactFreeze" class="secondary">⌖ Freeze impact</button><button type="button" id="saveGhost" class="secondary">◇ Set reference</button><label class="overlay-source">Compare to <select id="ghostSource" aria-label="Select ghost reference"><option value="local">Saved reference</option></select></label><label class="overlay-source">Opacity <input id="ghostOpacity" aria-label="Ghost transparency" type="range" min="15" max="95" value="55" /></label></div><small id="ghostStatus" aria-live="polite">Align reference footage to the same camera position and target. Ghost strokes are visual comparisons, not 3D reconstructions.</small></div>
             <div class="video-toolbar">
               <label class="file-button" for="videoFile">↑ Import <input type="file" id="videoFile" accept="video/*" /></label>
@@ -196,7 +228,7 @@
     <section id="tab-drills" class="tab"><div class="page-heading"><div><div class="eyebrow">STRUCTURED PRACTICE</div><h1>Drill library<span class="lime">.</span></h1><p>Turn a technical finding into a repeatable practice plan.</p></div></div><div class="drill-grid" id="drillCards"></div></section>
     <section id="tab-settings" class="tab"><div class="page-heading"><div><div class="eyebrow">DATA MANAGEMENT</div><h1>Data & setup<span class="lime">.</span></h1><p>Control local storage, backups, and measurement expectations.</p></div></div><div class="settings-grid"><div class="panel"><h2>Export & import</h2><p>Back up metadata as JSON (video blobs are not included).</p><div class="settings-actions"><button class="primary" id="exportJson">↓ Export JSON</button><button class="secondary" id="exportCsv">↓ Export CSV</button><label class="file-button" for="importJson">↑ Import JSON <input type="file" id="importJson" accept=".json,application/json" /></label></div><p id="recordCount">0 records saved</p></div><div class="panel"><h2>Video data policy</h2><p>Video review and measurements run locally in your browser. Browser speech recognition may use your browser provider’s online recognition service; typed logging stays local. If you select “Keep video,” a clip is saved to IndexedDB on this device. The browser may evict stored data when space is low.</p><button class="danger-btn" id="deleteAll">Delete all local strokes and videos</button></div><div class="panel"><h2>Measurement grades</h2><div class="grade-row"><span class="tag verified">MEASURED</span><p>Timing intervals computed from video positions selected by the user; recorded outcomes and putt distances are self-reported.</p></div><div class="grade-row"><span class="tag estimated">ESTIMATED</span><p>2D putter trace, projected angles, experimental pattern matching, and rule-based coaching.</p></div><div class="grade-row"><span class="tag calibrate">CALIBRATE / HARDWARE</span><p>True 3D path, face-to-target angle at impact, dynamic loft, strike location, skid/roll, ball speed and launch characteristics.</p></div></div><div class="panel"><h2>Camera permissions</h2><p>The live camera needs HTTPS or localhost and browser permission. Camera recording uses MediaRecorder when supported. On iPhone, open the hosted app in Safari.</p><p id="supportCheck"></p></div></div></section>
   </main>
-  <nav class="bottom-nav" aria-label="Mobile navigation"><button data-tab="studio" class="active"><span>◉</span>Studio</button><button data-tab="sessions"><span>▤</span>Sessions</button><button data-tab="trends"><span>⌁</span>Trends</button><button data-tab="fit"><span>⚖</span>Fit</button><button data-tab="drills"><span>⛳</span>Drills</button></nav>
+  <nav class="bottom-nav" aria-label="Mobile navigation"><button data-tab="live" class="active"><span>◉</span>Live</button><button data-tab="studio"><span>↑</span>Upload</button><button data-tab="sessions"><span>▤</span>Sessions</button><button data-tab="trends"><span>⌁</span>Trends</button><button data-tab="fit"><span>⚖</span>Fit</button><button data-tab="drills"><span>⛳</span>Drills</button></nav>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <div class="modal-backdrop" id="modal" hidden><div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal-head"><h2 id="modalTitle">Saved stroke</h2><button id="modalClose" aria-label="Close dialog">✕</button></div><div id="modalContent"></div></div></div>
@@ -213,7 +245,7 @@ const toast = (message,error=false) => {const el=$('toast');el.textContent=messa
 const angleWrap = a => {while(a>90)a-=180;while(a< -90)a+=180;return a;};
 const deg = r => r*180/Math.PI;
 const dist = (a,b) => Math.hypot((a.x-b.x),(a.y-b.y));
-const state = {tab:'studio',tool:'putter',marks:{start:null,transition:null,impact:null},putterMarks:[],headMarks:[],faceMarks:[],ballMarks:[],target:null,scaleMarks:[],file:null,fileUrl:null,stream:null,recorder:null,chunks:[],facing:'environment',mode:'empty',busy:false,records:[],db:null,recordedSeconds:0};
+const state = {tab:'live',tool:'putter',marks:{start:null,transition:null,impact:null},putterMarks:[],headMarks:[],faceMarks:[],ballMarks:[],target:null,scaleMarks:[],file:null,fileUrl:null,stream:null,recorder:null,chunks:[],facing:'environment',mode:'empty',busy:false,records:[],db:null,recordedSeconds:0};
 const video = $('reviewVideo'), live = $('liveVideo'), overlay=$('overlay'), ctx=overlay.getContext('2d');
 const drawCanvas=document.createElement('canvas'), drawCtx=drawCanvas.getContext('2d',{willReadFrequently:true});
 const idb = {
@@ -226,6 +258,7 @@ const idb = {
 function nav(tab){state.tab=tab;$$('.tab').forEach(el=>el.classList.toggle('active',el.id==='tab-'+tab));$$('[data-tab]').forEach(el=>el.classList.toggle('active',el.dataset.tab===tab));if(tab==='sessions')renderSessions();if(tab==='trends')renderTrends();if(tab==='fit')renderFit();if(tab==='settings')renderSettings();scrollTo({top:0,behavior:'smooth'});}
 $$('[data-tab]').forEach(btn=>btn.addEventListener('click',()=>nav(btn.dataset.tab)));
 function setMode(mode){state.mode=mode;const hasVideo=mode==='review',hasCamera=mode==='live';$('emptyState').style.display=mode==='empty'?'block':'none';video.classList.toggle('visible',hasVideo);live.classList.toggle('visible',hasCamera);$('liveIndicator').style.display=hasCamera?'block':'none';$('recordIndicator').style.display=hasCamera && !!state.recorder && state.recorder.state==='recording'?'block':'none';$('videoBadge').style.display=mode==='empty'?'none':'block';$('mediaStatus').textContent=hasVideo?'VIDEO READY':hasCamera?'CAMERA LIVE':'NO VIDEO';$('mediaStatus').classList.toggle('live',hasCamera);$('recordBtn').disabled=!hasCamera || !window.MediaRecorder;$('recordBtn').textContent=state.recorder?.state==='recording'?'■ Stop':'● Record';$('flipBtn').disabled=!hasCamera;$('clearVideoBtn').disabled=mode==='empty';$('autoTrackBtn').disabled=!hasVideo || state.busy || !((state.tool==='head'?state.headMarks:state.putterMarks).length);$('saveStrokeBtn').disabled=!hasVideo;['markStart','markTransition','markImpact','backBtn','playBtn','nextBtn','seekBar'].forEach(id=>$(id).disabled=!hasVideo);$('videoShell').classList.toggle('annotating',hasVideo);redraw();}
+window.setPuttingVideoMode=setMode;
 function releaseFile(){if(state.fileUrl){URL.revokeObjectURL(state.fileUrl);state.fileUrl=null;}state.file=null;}
 function stopStream(){if(state.stream){state.stream.getTracks().forEach(track=>track.stop());state.stream=null;}live.srcObject=null;}
 function resetMarks(){state.marks={start:null,transition:null,impact:null};state.putterMarks=[];state.headMarks=[];state.faceMarks=[];state.ballMarks=[];state.target=null;state.scaleMarks=[];setMetrics();redraw();}
@@ -1208,6 +1241,105 @@ for(const [selector,label] of [['.annotation-panel','Advanced manual landmarks a
  node.parentNode.insertBefore(details,node);details.append(node);
 }
 setMode('review');setZoom(1);redrawAssist();
+
+/* Putting Lab v0.8: truly separate live and upload surfaces share a single media/analysis engine. */
+const v08={workspace:'live',source:'live',lastEvidence:null,uploadClip:null,liveClip:null};
+const cameraPanel=document.querySelector('.camera-panel');
+const uploadStage=$a('uploadStage'),liveStage=$a('liveStage');
+const previousWorkspaceNav=nav;
+nav=function(tab){
+ if(tab==='live'||tab==='studio'){
+  if(state.recorder?.state==='recording'&&v08.workspace!==tab){toast('Finish recording this stroke before switching workspaces.',true);return;}
+  const from=v08.workspace;
+  if(from==='studio'&&tab==='live'&&state.file)v08.uploadClip=state.file;
+  if(from==='live'&&tab==='studio'&&state.file)v08.liveClip=state.file;
+  v08.workspace=tab;v08.source=tab==='live'?'live':'upload';
+  (tab==='live'?liveStage:uploadStage).appendChild(cameraPanel);
+  document.body.classList.toggle('workspace-live',tab==='live');document.body.classList.toggle('workspace-upload',tab==='studio');
+  const subtitle=$a('workspaceCameraSubtitle');subtitle.textContent=tab==='live'?'Live capture, auto-trigger, confirm clip':'Upload video, detect proposed phases, and verify results';
+  document.querySelectorAll('.workspace-choice button').forEach(el=>el.classList.toggle('active',el.dataset.tab===tab));
+  if(tab==='studio'&&state.mode==='live'){stopStream();window.setPuttingVideoMode('empty');}
+  if(tab==='live'&&from==='studio'){
+   if(v08.liveClip&&state.file!==v08.liveClip)loadVideo(v08.liveClip);
+   else if(!v08.liveClip)window.setPuttingVideoMode('empty');
+  }
+  if(tab==='studio'&&from==='live'){
+   if(v08.uploadClip&&state.file!==v08.uploadClip)loadVideo(v08.uploadClip);
+   else if(!v08.uploadClip)window.setPuttingVideoMode('empty');
+   else window.setPuttingVideoMode('review');
+  }
+ }
+ previousWorkspaceNav(tab);
+ if(tab==='studio'||tab==='live')requestAnimationFrame(()=>{redraw();if(typeof setZoom==='function')setZoom(assist.zoom);renderEvidence();});
+};
+const profileInfo={
+ overhead:'Overhead view: automatic ball acquisition and impact-candidate timing. Target direction, face angle, club speed and ball speed are only numeric when supporting point tracks and calibration are present.',
+ side:'Side-on view: position the lens near ground level, parallel to the target line and 9–12 inches from the ball. Prefer recorded 1080p/240 fps. Add a thick contrasting line on the ball for future spin tracking. Launch, rotation and skid are unavailable in this experimental build.'
+};
+function setCameraProfile(profile){
+ const mode=profile==='side'?'side':'overhead';
+ $a('profileDescription').textContent=profileInfo[mode];
+ $a('cameraProfileHelp').textContent=mode==='side'?'Side-on research profile: launch/spin require more than a ball-center track.':'Overhead: horizontal start line, ball position and projected putter delivery.';
+ $a('angle').value=mode==='side'?'face-on':'overhead';
+ if(state.mode==='review'){assist.scanId++;resetPhaseUI();assist.pending=null;showPending();assistMsg(mode==='side'?'Side-on profile selected. Overhead auto-detection paused. Launch/spin processing is not yet instrument-validated.':'Overhead profile enabled. Run Auto-analyze to generate phase and ball proposals.');}
+ renderEvidence();setMetrics();
+}
+$a('captureProfile').addEventListener('change',e=>setCameraProfile(e.target.value));
+function evidenceModel(){
+ const isSide=$a('captureProfile').value==='side'&&v08.workspace==='studio';
+ const stats=calculate();const ball=assist.pending?.ball||phaseState.data?.ball||state.ballMarks[0]||null;
+ const userImpact=Number.isFinite(state.marks.impact)&&phaseState.data?.phases.impact?.confirmed;
+ const candidateImpact=phaseState.data?.phases.impact||null;
+ const all=[];
+ const push=(label,value,status,reason)=>all.push({label,value,status,reason});
+ push('Ball center',ball?`${(ball.x*100).toFixed(1)}% × ${(ball.y*100).toFixed(1)}%`:'—',ball?'proposed':'unavailable',ball?'Image-position suggestion; inspect circle on video.':'No detected ball; retry or select ball once.');
+ push('Impact frame',candidateImpact?clock(candidateImpact.t):'—',candidateImpact?.confirmed?'verified':candidateImpact?'proposed':'unavailable',candidateImpact?.confirmed?'Human-confirmed timestamp.':candidateImpact?'Ball-departure candidate, not exact contact.':'No impact candidate yet.');
+ if(isSide){
+  push('Ball speed','—','unavailable','Side-on pixel-to-metre calibration and tracked frames required.');
+  push('Start direction','—','unavailable','An overhead target-reference view is needed for horizontal start direction.');
+  push('Face at impact','—','unavailable','Side-on camera cannot determine face-to-target angle.');
+  push('Putter path / speed','—','unavailable','Putter tracking and calibrated timestamps required.');
+ }else{
+  push('Ball speed',Number.isFinite(stats.ballSpeed)?stats.ballSpeed.toFixed(2)+' m/s':'—',Number.isFinite(stats.ballSpeed)?'proposed':'unavailable',Number.isFinite(stats.ballSpeed)?'Calibrated 2D estimate from tracked ball centers; verify source points.':'Requires confirmed ball size, impact time and ≥3 clean post-impact ball tracks.');
+  push('Start line',Number.isFinite(stats.startDeviation)?stats.startDeviation.toFixed(1)+'°':'—',Number.isFinite(stats.startDeviation)?'proposed':'unavailable',Number.isFinite(stats.startDeviation)?'Image-space bearing relative to selected target; inspect tracks.':'Requires stable post-impact ball tracking and a target reference.');
+  push('Club face',Number.isFinite(stats.impactFace)?stats.impactFace.toFixed(1)+'°':'—',Number.isFinite(stats.impactFace)?'proposed':'unavailable',Number.isFinite(stats.impactFace)?'Projected face angle from two marked endpoints at impact.':'Automatic face edge detection not reliable; confirm two visible endpoints.');
+  push('Putter path',Number.isFinite(stats.impactPath)?stats.impactPath.toFixed(1)+'°':'—',Number.isFinite(stats.impactPath)?'proposed':'unavailable',Number.isFinite(stats.impactPath)?'Near-impact fitted 2D tangent from tracked putter head.':'Requires ≥3 consistent near-impact clubhead points and a target line.');
+  const near=state.putterMarks.filter(q=>Number.isFinite(q.t)&&Number.isFinite(state.marks.impact)&&q.t>=state.marks.impact-.13&&q.t<=state.marks.impact+.012).sort((a,b)=>a.t-b.t);
+  let clubSpeed=null;
+  if(near.length>=3&&Number.isFinite(stats.scale)&&near.at(-1).t-near[0].t>.025){
+   const f=videoFit(),avg=near.reduce((a,b)=>a+b.t,0)/near.length;
+   const den=near.reduce((a,b)=>a+(b.t-avg)**2,0);
+   if(den>1e-6){
+    const mx=near.reduce((a,b)=>a+b.x*f.vw,0)/near.length,my=near.reduce((a,b)=>a+b.y*f.vh,0)/near.length;
+    const vx=near.reduce((a,b)=>a+(b.t-avg)*(b.x*f.vw-mx),0)/den,vy=near.reduce((a,b)=>a+(b.t-avg)*(b.y*f.vh-my),0)/den;
+    const residual=Math.sqrt(near.reduce((a,b)=>a+(b.x*f.vw-mx-vx*(b.t-avg))**2+(b.y*f.vh-my-vy*(b.t-avg))**2,0)/near.length);
+    const v=Math.hypot(vx,vy)*stats.scale/1000;
+    if(v>.05&&v<5&&residual<Math.max(4,Math.hypot(f.vw,f.vh)*.01))clubSpeed=v;
+   }
+  }
+  push('Putter speed',Number.isFinite(clubSpeed)?clubSpeed.toFixed(2)+' m/s':'—',Number.isFinite(clubSpeed)?'proposed':'unavailable',Number.isFinite(clubSpeed)?'Regressed near-impact 2D track speed; verify geometry, timing and ball calibration.':'Needs 3 near-impact putter positions and verified distance calibration.');
+ }
+ push('Vertical launch','—','unavailable',isSide?'Requires stable side-view ball vertical tracking and a ground-plane reference. Not validated.':'Not observable from a single overhead view.');
+ push('Spin / RPM','—','unavailable',isSide?'Track a contrasting mark on the ball at high FPS; feature not yet implemented.':'Overhead movement cannot establish vertical-axis backspin or forward roll.');
+ push('Zero skid','—','unavailable',isSide?'Requires synchronized ball-center speed and angular velocity from visible rotating mark. Not yet implemented.':'Cannot measure skid from ball-center travel alone.');
+ return all;
+}
+function renderEvidence(){const grid=$a('evidenceGrid');if(!grid)return;const metrics=evidenceModel();grid.replaceChildren();for(const m of metrics){const cell=document.createElement('div');cell.className='evidence-metric';const label=document.createElement('small');label.textContent=m.label;const flag=document.createElement('span');flag.className='evidence-flag '+m.status;flag.textContent=m.status==='verified'?'Verified':m.status==='proposed'?'Candidate':'Unavailable';const val=document.createElement('strong');val.textContent=m.value;const why=document.createElement('span');why.textContent=m.reason;cell.append(label,flag,val,why);grid.append(cell);}v08.lastEvidence=metrics;
+ const candidates=metrics.filter(m=>m.status==='proposed').length;
+ $a('evidenceSummary').textContent=candidates?`${candidates} proposed measurement(s); verify images, timestamps, and physical calibration before using any value for fitting.`:'No defensible numerical measurements yet. Auto-detection will suggest ball location and impact when footage permits; unavailable values remain blank.';
+}
+$a('reviewEvidence').addEventListener('click',()=>{document.querySelector('#annotationAssist')?.scrollIntoView({behavior:'smooth',block:'center'});$a('assistEdit').click();});
+$a('refreshEvidence').addEventListener('click',renderEvidence);
+const previousEvidenceMetrics=setMetrics;
+setMetrics=function(){previousEvidenceMetrics();renderEvidence();};
+const previousEvidencePhase=updatePhaseState;
+updatePhaseState=function(data){previousEvidencePhase(data);renderEvidence();};
+const previousEvidencePending=showPending;
+showPending=function(){previousEvidencePending();renderEvidence();};
+// Default workspace: live auto-detection; uploads remain independent and discoverable.
+nav('live');
+renderEvidence();
+
 })();
 
 </script>
