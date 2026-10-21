@@ -236,3 +236,155 @@ final class CaptureController: NSObject,ObservableObject,AVCaptureVideoDataOutpu
         }
     }
 }
+
+
+// MARK: - SIMULATOR OVERHEAD REPLAY DIAGNOSTICS
+// This exercises FrameVision -> StrokeEventDetector with generated CVPixelBuffers.
+// It NEVER claims access to an iPhone camera, hardware FPS, or instrument-grade values.
+#if targetEnvironment(simulator)
+private struct SimulatorCase: Codable {
+    let name: String
+    let expectedImpact: Bool
+    let detectedImpact: Bool
+    let ballFrames: Int
+    let movingPutterFrames: Int
+    let candidateSeconds: Double?
+    let passed: Bool
+}
+private struct SimulatorReport: Codable {
+    let environment: String
+    let version: String
+    let simulatedFPS: Int
+    let nativeCameraTested: Bool
+    let passing: Bool
+    let cases: [SimulatorCase]
+}
+extension CaptureController {
+    @MainActor func runSimulatorDiagnostics() {
+        simulatorSummary = "Simulating overhead frames…"
+        simulatorReportPassed = nil
+        DispatchQueue.global(qos: .userInitiated).async {
+            let cases: [(String, Bool)] = [
+                ("straight-putt", true),
+                ("push-right-putt", true),
+                ("no-ball-departure", false),
+                ("camera-shake", false),
+                ("ball-occlusion", false),
+                ("low-light", false)
+            ]
+            let results = cases.map { self.runSimulatedCase($0.0, expected: $0.1) }
+            let report = SimulatorReport(
+                environment: "iOS Simulator; synthetic pixel buffers, no camera",
+                version: "v0.9.1",
+                simulatedFPS: 60,
+                nativeCameraTested: false,
+                passing: results.allSatisfy(\.passed),
+                cases: results
+            )
+            do {
+                let data = try JSONEncoder().encode(report)
+                let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+                    .appendingPathComponent("PuttingLabSimulatorReport.json")
+                try data.write(to: url, options: .atomic)
+            } catch {
+                DispatchQueue.main.async {
+                    self.simulatorReportPassed = false
+                    self.simulatorSummary = "Report could not be saved: \(error.localizedDescription)"
+                }
+                return
+            }
+            DispatchQueue.main.async {
+                self.simulatorReportPassed = report.passing
+                self.simulatorSummary = "\(results.filter(\.passed).count)/\(results.count) synthetic camera cases passed. Full report in Documents."
+                self.status = report.passing ? "Simulator replay checks passed — physical camera NOT tested"
+                                             : "Simulator replay found detector failures — see report"
+                self.confidenceMessage = "Synthetic image frames only · no iPhone camera, FPS, focus or encoder tested"
+            }
+        }
+    }
+
+    private func runSimulatedCase(_ name: String, expected: Bool) -> SimulatorCase {
+        let vision = FrameVision()
+        let detector = StrokeEventDetector()
+        var ballFrames = 0, putterFrames = 0
+        for i in 0..<145 {
+            autoreleasepool {
+                guard let pixel = self.syntheticPuttingFrame(i: i, name: name) else { return }
+                let f = vision.observe(pixel, timestamp: Double(i) / 60.0)
+                if f.ball != nil { ballFrames += 1 }
+                if f.putter != nil { putterFrames += 1 }
+                _ = detector.consume(f)
+            }
+        }
+        let didDetect = detector.candidate != nil
+        return SimulatorCase(name: name, expectedImpact: expected, detectedImpact: didDetect,
+                             ballFrames: ballFrames, movingPutterFrames: putterFrames,
+                             candidateSeconds: detector.candidate?.impact.time, passed: didDetect == expected)
+    }
+
+    // Intentionally simple synthetic green + bright ball + dark putter head.
+    // Same CVPixelBuffer pixel format consumed in native FrameVision.observe.
+    private func syntheticPuttingFrame(i: Int, name: String) -> CVPixelBuffer? {
+        let width = 192, height = 108
+        var optional: CVPixelBuffer?
+        let attrs: [CFString: Any] = [
+            kCVPixelBufferCGImageCompatibilityKey: true,
+            kCVPixelBufferCGBitmapContextCompatibilityKey: true
+        ]
+        guard CVPixelBufferCreate(kCFAllocatorDefault, width, height,
+                                  kCVPixelFormatType_32BGRA, attrs as CFDictionary, &optional) == kCVReturnSuccess,
+              let pixel = optional else { return nil }
+        CVPixelBufferLockBaseAddress(pixel, [])
+        defer { CVPixelBufferUnlockBaseAddress(pixel, []) }
+        guard let raw = CVPixelBufferGetBaseAddress(pixel) else { return nil }
+        let pixels = raw.assumingMemoryBound(to: UInt8.self)
+        let rowBytes = CVPixelBufferGetBytesPerRow(pixel)
+        let shaking = name == "camera-shake" && i >= 60
+        let low = name == "low-light"
+        let base: UInt8 = low ? 12 : (shaking ? (i.isMultiple(of: 2) ? 32 : 110) : 40)
+        for y in 0..<height {
+            for x in 0..<width {
+                let index = y * rowBytes + 4 * x
+                pixels[index] = base
+                pixels[index + 1] = base
+                pixels[index + 2] = base
+                pixels[index + 3] = 255
+            }
+        }
+        func dot(_ x: Int, _ y: Int, radius: Int, luminance: UInt8) {
+            let left = max(0, x - radius), right = min(width - 1, x + radius)
+            let top = max(0, y - radius), bottom = min(height - 1, y + radius)
+            for yy in top...bottom {
+                for xx in left...right where (xx-x)*(xx-x) + (yy-y)*(yy-y) <= radius*radius {
+                    let p = yy * rowBytes + xx * 4
+                    pixels[p] = luminance
+                    pixels[p+1] = luminance
+                    pixels[p+2] = luminance
+                }
+            }
+        }
+        let hasBall = name != "ball-occlusion" || i < 82
+        let departed = name != "no-ball-departure" && i >= 90
+        if i >= 34 && i <= 92 {
+            let x = 53 + Int(Double(i - 34) * 0.75)
+            let y = 60
+            // A dark, moving putter block is distinguishable from the white ball.
+            for yy in (y-4)...(y+4) {
+                for xx in (x-5)...(x+5) {
+                    guard xx >= 0 && xx < width && yy >= 0 && yy < height else { continue }
+                    let p = yy * rowBytes + 4*xx
+                    pixels[p] = 135
+                    pixels[p+1] = 135
+                    pixels[p+2] = 135
+                }
+            }
+        }
+        if hasBall {
+            let delta = departed ? min(52, Int(Double(i - 89) * 1.65)) : 0
+            let by = name == "push-right-putt" ? 60 + delta/3 : 60
+            dot(96 + delta, by, radius: 4, luminance: low ? 78 : 245)
+        }
+        return pixel
+    }
+}
+#endif
