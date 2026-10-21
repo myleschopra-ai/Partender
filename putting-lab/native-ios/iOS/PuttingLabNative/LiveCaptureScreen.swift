@@ -28,6 +28,26 @@ struct LiveCaptureScreen: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment:.leading,spacing:14){
+                    #if targetEnvironment(simulator)
+                    VStack(alignment: .leading, spacing: 7) {
+                        Label("VIRTUAL iPHONE — NO CAMERA HARDWARE", systemImage: "iphone.gen3.radiowaves.left.and.right")
+                            .font(.subheadline.bold())
+                        Text("The iOS Simulator can validate SwiftUI, frame analysis and stroke decisions, but cannot validate physical camera modes or actual capture.")
+                            .font(.caption)
+                        Button("Run synthetic overhead tests", systemImage: "checkmark.circle") {
+                            controller.runSimulatorDiagnostics()
+                        }.buttonStyle(.borderedProminent)
+                        if let summary = controller.simulatorSummary {
+                            Text(summary)
+                                .font(.caption.bold())
+                                .foregroundStyle(controller.simulatorReportPassed == false ? .red : .primary)
+                                .accessibilityIdentifier("simulatorReportSummary")
+                        }
+                    }.padding(12)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color.yellow.opacity(0.14))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                    #endif
                     Text("Native overhead detection").font(.title2.bold())
                     Text("Fixed iPhone · automatically clip a stroke · verify the suggested impact")
                         .foregroundStyle(.secondary).font(.footnote)
@@ -101,7 +121,18 @@ struct LiveCaptureScreen: View {
                 }.padding()
             }
             .navigationTitle("Putting Lab")
-            .onAppear {if !controller.isCameraReady && !controller.isArmed {controller.start(mode:mode)}}
+            .onAppear {
+                #if targetEnvironment(simulator)
+                controller.status = "Simulator-only demo — real camera unavailable"
+                if ProcessInfo.processInfo.arguments.contains("-PuttingLabSyntheticTest") {
+                    controller.runSimulatorDiagnostics()
+                }
+                #else
+                if !controller.isCameraReady && !controller.isArmed {
+                    controller.start(mode: mode)
+                }
+                #endif
+            }
             .sheet(item:$controller.review){ReviewClipScreen(controller:controller,original:$0)}
             .alert("Capture issue",isPresented:Binding(get:{controller.errorMessage != nil},set:{if !$0 {controller.errorMessage=nil}})) {
                 Button("OK") {controller.errorMessage=nil}
