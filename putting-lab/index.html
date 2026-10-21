@@ -104,6 +104,7 @@
 .evidence-metrics{background:#102218;border:1px solid #4d6d4b;border-radius:12px;padding:13px;margin:14px 0}.evidence-head{display:flex;align-items:center;gap:8px;justify-content:space-between;flex-wrap:wrap}.evidence-head strong{color:#d3f4c4;font-size:14px}.evidence-metrics p{color:#bcd3b9;font-size:11px;line-height:1.55;margin:8px 0}
 .evidence-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0}.evidence-metric{border:1px solid #3a5542;background:#192e23;padding:11px 10px;border-radius:8px;min-width:0}.evidence-metric small{color:#a8c7aa;font-size:10px;font-weight:700;display:block}.evidence-metric strong{color:#efffea;font-size:16px;display:block;margin:5px 0;overflow-wrap:anywhere}.evidence-metric span{font-size:10px;color:#bad1b8;line-height:1.4;display:block}.evidence-metric .evidence-flag{font-size:9px;padding:3px 6px;background:#314335;display:inline-block;border-radius:5px;color:#d0e6c5;margin-bottom:5px}.evidence-metric .evidence-flag.unavailable{background:#3e332c;color:#e8c9a4}.evidence-metric .evidence-flag.proposed{background:#3e4326;color:#e5ef9e}.evidence-metric .evidence-flag.verified{background:#275c35;color:#d4f4c6}.evidence-footer{display:flex;gap:8px;flex-wrap:wrap}.evidence-footer button{font-size:11px;min-height:39px}.evidence-advisory{border-top:1px solid #304735;padding-top:10px!important}
 body.workspace-live #tab-live .studio-layout{max-width:950px}body.workspace-live .video-toolbar .file-button,body.workspace-live #emptyUpload{display:none!important}body.workspace-upload #cameraBtn,body.workspace-upload #recordBtn,body.workspace-upload #flipBtn,body.workspace-upload #emptyCamera,body.workspace-upload .smart-capture{display:none!important}body.workspace-upload .camera-actual{display:none}.live-stage .camera-panel .review-workflow,.live-stage .camera-panel #annotationAssist,.live-stage .camera-panel #phaseReview{max-width:100%}
+.evidence-confirmation{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px solid #304735}.evidence-confirmation button{min-height:40px}.evidence-confirmation-note{width:100%;font-size:10px!important;color:#b8cdb8!important;margin:0!important}.evidence-metric.user-verified{border-color:#70a75b;box-shadow:inset 0 0 0 1px #456f3a}.evidence-provenance{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:9px!important;color:#8fae93!important}
 @media(max-width:700px){.workspace-choice{gap:6px}.workspace-choice button{font-size:11px;padding:13px 5px}.capture-profiles{flex-direction:column;align-items:stretch}.capture-profiles select{max-width:100%;width:100%}.evidence-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.evidence-metric strong{font-size:14px}}
 
 /* v0.8.1: capture capability negotiation: overhead primary, sensor modes are not guaranteed */
@@ -132,7 +133,7 @@ body.workspace-live #tab-live .studio-layout{max-width:950px}body.workspace-live
   <main class="main">
     <header class="topbar"><div class="mobile-brand"><span class="brand-logo">◎</span> PUTTING<span class="lime">/</span>LAB</div><div class="topbar-right"><span class="secure">● Private workspace</span><span class="avatar">PL</span></div></header>
     <section id="tab-live" class="tab active" aria-label="Dedicated live automatic putting detection">
-      <div class="page-heading"><div><div class="eyebrow">WORKSPACE 01 / FIXED IPHONE CAMERA</div><h1>Live putting detection<span class="lime">.</span></h1><p>Mount the phone, acquire the ball, arm once, putt, then verify the clipped stroke.</p></div><span class="version-pill">LIVE / V0.8.1</span></div>
+      <div class="page-heading"><div><div class="eyebrow">WORKSPACE 01 / FIXED IPHONE CAMERA</div><h1>Live putting detection<span class="lime">.</span></h1><p>Mount the phone, acquire the ball, arm once, putt, then verify the clipped stroke.</p></div><span class="version-pill">LIVE / V0.9</span></div>
       <div class="workspace-choice" role="group" aria-label="Analysis workspace"><button data-tab="live" class="active" type="button">◉ Live auto-detection</button><button data-tab="studio" type="button">↑ Video upload analysis</button></div>
       <div class="focus-note"><strong>Hands-free capture, human-verified results.</strong> Auto-detection first identifies a stationary ball and a possible departure after putter movement. It keeps the recording and proposes stroke phases. Face, path and velocity require sufficient visual evidence and calibration before numeric results are shown.</div>
       <div class="capture-quality" aria-label="Live overhead camera quality">
@@ -145,7 +146,7 @@ body.workspace-live #tab-live .studio-layout{max-width:950px}body.workspace-live
       <div class="focus-note subnote"><strong>Live setup:</strong> iPhone mounted steady and overhead; ball in view; select its center once if automatic acquisition fails. Browser camera frame rate may be lower than requested. Upload existing high-speed recordings in the other workspace.</div>
     </section>
     <section id="tab-studio" class="tab" aria-label="Dedicated video upload and analysis">
-      <div class="page-heading"><div><div class="eyebrow">WORKSPACE 02 / RECORDED FOOTAGE</div><h1>Video upload analysis<span class="lime">.</span></h1><p>Import, automatically inspect, correct proposals, and save your stroke.</p></div><span class="version-pill">REVIEW / V0.8</span></div>
+      <div class="page-heading"><div><div class="eyebrow">WORKSPACE 02 / RECORDED FOOTAGE</div><h1>Video upload analysis<span class="lime">.</span></h1><p>Import, automatically inspect, correct proposals, and save your stroke.</p></div><span class="version-pill">REVIEW / V0.9</span></div>
       <div class="workspace-choice" role="group" aria-label="Analysis workspace"><button data-tab="live" type="button">◉ Live auto-detection</button><button data-tab="studio" class="active" type="button">↑ Video upload analysis</button></div>
       <div class="capture-profiles"><div><strong>Analysis view</strong><span id="cameraProfileHelp">Overhead: ball motion, start direction, putter path and face observations.</span></div><label for="captureProfile">Camera profile<select id="captureProfile"><option value="overhead">Overhead stroke</option><option value="side">Low side-on ball roll (experimental)</option></select></label></div>
       <div class="focus-note" id="profileDescription">Overhead video supports horizontal ball movement and projected putter delivery. Use a stable mount and a visible target line. All numeric metrics need a verified spatial reference.</div>
@@ -194,6 +195,7 @@ body.workspace-live #tab-live .studio-layout{max-width:950px}body.workspace-live
               <p id="evidenceSummary">Import an overhead clip or arm the live camera. Measurements appear only when their source evidence is available.</p>
               <div class="evidence-grid" id="evidenceGrid"></div>
               <div class="evidence-footer"><button id="reviewEvidence" type="button" class="secondary">↔ Review tracking points</button><button id="refreshEvidence" type="button" class="secondary">↻ Recheck evidence</button></div>
+              <div class="evidence-confirmation"><button id="confirmEvidence" type="button" class="primary" disabled>✓ Confirm visible proposals</button><button id="resetEvidenceConfirmation" type="button" class="secondary" disabled>Undo confirmation</button><p class="evidence-confirmation-note" id="evidenceConfirmationNote">Confirm only after scrubbing the impact window and checking every overlaid point. Confirmation records human review; it does not make the result equipment-grade.</p></div>
               <p class="evidence-advisory">Overhead video cannot recover vertical launch angle or reliable backspin/skid rate. For those, use a low side-on 240 fps video with a clearly marked ball. Even then, numeric spin/skid requires rotation tracking that has not yet been validated.</p>
             </section>
 <div class="overlay-dock" id="overlayDock" aria-label="Visual overlay controls"><div class="overlay-heading"><strong>Precision overlays</strong><span class="tag estimated">PROJECTED · IMAGE-SPACE</span></div><div class="overlay-toggles"><label><input id="ovTarget" type="checkbox" checked /> Target</label><label><input id="ovPath" type="checkbox" checked /> Path</label><label><input id="ovFace" type="checkbox" checked /> Face</label><label><input id="ovBall" type="checkbox" checked /> Ball</label><label><input id="ovGhost" type="checkbox" /> Ghost</label></div><div class="overlay-actions"><button type="button" id="impactFreeze" class="secondary">⌖ Freeze impact</button><button type="button" id="saveGhost" class="secondary">◇ Set reference</button><label class="overlay-source">Compare to <select id="ghostSource" aria-label="Select ghost reference"><option value="local">Saved reference</option></select></label><label class="overlay-source">Opacity <input id="ghostOpacity" aria-label="Ghost transparency" type="range" min="15" max="95" value="55" /></label></div><small id="ghostStatus" aria-live="polite">Align reference footage to the same camera position and target. Ghost strokes are visual comparisons, not 3D reconstructions.</small></div>
@@ -242,6 +244,7 @@ body.workspace-live #tab-live .studio-layout{max-width:950px}body.workspace-live
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <div class="modal-backdrop" id="modal" hidden><div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal-head"><h2 id="modalTitle">Saved stroke</h2><button id="modalClose" aria-label="Close dialog">✕</button></div><div id="modalContent"></div></div></div>
+<script src="./evidence-core.js"></script>
 <script>
 /* PUTTING / LAB v0.1 — local-first, dependency-free video review. */
 'use strict';
@@ -444,8 +447,9 @@ function calculate(){
    }
  }
  if(!Number.isFinite(ballSpeed)&&!reasons.ballSpeed)reasons.ballSpeed='Requires overhead, calibrated ball width, impact mark, and 3 post-impact ball positions';
- return {impactPath,impactFace,ballSpeed,back,forward,ratio,pathLength,scale,face,startDeviation,headDrift,points:pts.length,reasons,
-  quality:{impactPath:Number.isFinite(impactPath)?'MANUAL PROJECTED':'UNMEASURABLE',impactFace:Number.isFinite(impactFace)?'MANUAL PROJECTED':'UNMEASURABLE',ballSpeed:Number.isFinite(ballSpeed)?'CALIBRATED 2D ESTIMATE':'UNMEASURABLE'},modelVersion:'0.3-integrity-1'};
+  const sourceLabel=items=>items.some(p=>p.source==='auto-evidence')?'AUTO PROPOSED':'MANUAL PROJECTED';
+  return {impactPath,impactFace,ballSpeed,back,forward,ratio,pathLength,scale,face,startDeviation,headDrift,points:pts.length,reasons,
+   quality:{impactPath:Number.isFinite(impactPath)?sourceLabel(pts):'UNMEASURABLE',impactFace:Number.isFinite(impactFace)?sourceLabel(state.faceMarks):'UNMEASURABLE',ballSpeed:Number.isFinite(ballSpeed)?sourceLabel(balls):'UNMEASURABLE'},modelVersion:'0.9-evidence-1'};
 }
 function setMetrics(){const a=calculate();$('backMetric').textContent=fixed(a.back,3);$('forwardMetric').textContent=fixed(a.forward,3);$('ratioMetric').textContent=Number.isFinite(a.ratio)?fixed(a.ratio)+':1':'—';$('pointsMetric').textContent=state.putterMarks.length;for(const [k,id] of [['start','startVal'],['transition','transitionVal'],['impact','impactVal']]){$(id).textContent=Number.isFinite(state.marks[k])?clock(state.marks[k]):'Tap to mark';$('mark'+k[0].toUpperCase()+k.slice(1)).classList.toggle('set',Number.isFinite(state.marks[k]));}
   $('impactPathReadout').textContent=Number.isFinite(a.impactPath)?fixed(a.impactPath,1)+'° projected':'NOT MEASURABLE';$('impactFaceReadout').textContent=Number.isFinite(a.impactFace)?fixed(a.impactFace,1)+'° projected':'NOT MEASURABLE';$('arcReadout').textContent=Number.isFinite(a.pathLength)?(a.scale?fixed(a.pathLength*a.scale,1)+' mm projected':fixed(a.pathLength,0)+' image px'):'Mark arc points';$('speedReadout').textContent=Number.isFinite(a.ballSpeed)?fixed(a.ballSpeed,2)+' m/s estimated':'NOT MEASURABLE';$('headReadout').textContent=a.headDrift===null?'Mark 2+ head points':fixed(a.headDrift,0)+' image px';$('pathReadout').textContent=a.pathLength!==null?(a.scale?fixed(a.pathLength*a.scale,1)+' mm approx':fixed(a.pathLength,0)+' image px'):'Add 2+ points';$('faceReadout').textContent=Number.isFinite(a.face)?fixed(a.face,1)+'° projected':'Mark 2 face points';$('scaleReadout').textContent=a.scale?fixed(a.scale,3)+' mm / image px':'Uncalibrated';$('startlineReadout').textContent=Number.isFinite(a.startDeviation)?fixed(a.startDeviation,1)+'° projected':'Mark ball motion + target';$('measurementReasons').textContent=Object.entries(a.reasons).filter(([k])=>['impactPath','impactFace','ballSpeed'].includes(k)).map(([k,v])=>`${k}: ${v}`).join(' • ')||'Calibrated image-plane estimates only; verify with reference equipment.';$('autoTrackBtn').disabled=state.mode!=='review'||state.busy||!((state.tool==='head'?state.headMarks:state.putterMarks).length);$('undoPointBtn').disabled=!((state.tool==='putter'&&state.putterMarks.length)||(state.tool==='head'&&state.headMarks.length)||(state.tool==='face'&&state.faceMarks.length)||(state.tool==='ball'&&state.ballMarks.length)||(state.tool==='target'&&state.target)||(state.tool==='scale'&&state.scaleMarks.length));$('videoBadge').textContent='CAM 01 / '+$('angle').value.toUpperCase();renderCoaching(a);redraw();}
@@ -1222,7 +1226,7 @@ function showPending(){const p=assist.pending,box=$a('assistProposals'),preview=
  lines.push('No face, path, or ball-speed value is claimed from these cues.');
  const summary=document.createElement('div');summary.textContent=lines.join(' ');preview.append(summary);
  const button=(label,action,primary=false)=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.classList.toggle('primary',primary);b.addEventListener('click',action);preview.append(b);return b;};
- if(p.ball)button('✓ Accept ball reference',()=>{if(!p)return;if(!state.ballMarks.some(m=>Math.abs(m.t-p.ball.t)<.09))state.ballMarks.unshift({...p.ball,auto:true,verifiedByUser:true});assist.focus={x:p.ball.x,y:p.ball.y};redrawAssist();assistMsg('Ball reference accepted. You can switch to Edit and move it.');});
+  if(p.ball)button('✓ Accept ball reference',()=>{if(!p)return;const auto=state.ballMarks.find(m=>m.source==='auto-evidence'&&Math.hypot(m.x-p.ball.x,m.y-p.ball.y)<.03);if(auto)auto.verifiedByUser=true;else if(!state.ballMarks.some(m=>Math.abs(m.t-p.ball.t)<.09))state.ballMarks.unshift({...p.ball,auto:true,verifiedByUser:true});assist.focus={x:p.ball.x,y:p.ball.y};redrawAssist();assistMsg('Ball reference accepted. You can switch to Edit and move it.');});
  if(Number.isFinite(p.impact)){
   button('▶ Inspect impact frame',()=>{video.pause();video.currentTime=p.impact;},false);
   button('✓ Confirm impact frame',()=>{video.pause(); // User must first inspect visually and may step frames. Use CURRENT video timestamp.
@@ -1252,7 +1256,7 @@ async function analyzeVideo({impactSeed=null,ballSeed=null,fromLive=false}={}){
   const roi={x:foundBall.x,y:foundBall.y};const h=Math.max(60,Math.round(192*(video.videoHeight||9)/(video.videoWidth||16)));
   const det=Number.isFinite(impactSeed)?null:new ImpactCandidateDetector(192,h,roi);
   let candidate=Number.isFinite(impactSeed)?{time:impactSeed*1000,status:'candidate',sampleMs:null}:null;
-  let cameraMotion=0,samples=0,firstApproach=null,previous=null,trace=[];
+   let cameraMotion=0,samples=0,firstApproach=null,previous=null,trace=[],brightCandidates=[];
   let limit=Number.isFinite(impactSeed)?Math.min(maxT,impactSeed+1.3):maxT;
   for(let t=startT;t<=limit+.002;t+=step){
    if(token!==assist.scanId||state.mode!=='review')throw Error('Analysis canceled (new clip or user request)');
@@ -1262,19 +1266,23 @@ async function analyzeVideo({impactSeed=null,ballSeed=null,fromLive=false}={}){
    signal.global=finding.global||0;trace.push(signal);
    if(finding.status==='camera-moving')cameraMotion++;
    if(finding.status==='approach'&&firstApproach===null)firstApproach=t;
-   if(finding.status==='candidate'&&!candidate){candidate=finding;limit=Math.min(maxT,finding.time/1000+1.25);}
+    if(finding.status==='candidate'&&!candidate){candidate=finding;limit=Math.min(maxT,finding.time/1000+1.25);}
+    if(candidate&&t>=candidate.time/1000-.01&&t<=candidate.time/1000+.3){const bright=brightBallCandidate(frame);if(bright)brightCandidates.push({...bright,t});}
    previous=frame.gray;
    if(samples%15===0){assistMsg(`Scanning stroke frames… ${Math.round(t/Math.max(.01,limit)*100)}%`);await new Promise(r=>setTimeout(r,0));}
   }
   const reject=!candidate||(cameraMotion>Math.max(3,samples*.16));
   const warning=reject?(cameraMotion>Math.max(3,samples*.16)?'Camera movement prevented reliable detection':'No convincing ball departure after putter approach'):' ';
   assist.pending={ball:foundBall,impact:reject?null:candidate.time/1000,start:firstApproach,interval:Math.round(step*1000),samples,reason:reject?warning:''};
-  if(!reject){
+   if(!reject){
+    let impactFrame=null;try{await seekForTracking(Math.max(.001,candidate.time/1000-step));impactFrame=getAssistFrame();}catch(e){/* face evidence stays unavailable */}
+    const proposal=window.PuttingEvidenceCore?.build({trace,brightCandidates,ball:foundBall,impact:candidate.time/1000,impactFrame,frameWidth:firstFrame.w})||null;
+    if(proposal){proposal.impact=candidate.time/1000;applyAutoEvidence(proposal,foundBall);}else clearAutoEvidence();
    const plan=inferStrokePhases(trace,candidate.time/1000,duration,foundBall);
    if(plan){updatePhaseState(plan);$a('autoClipReview').hidden=true;
     video.currentTime=plan.clip.start;assistMsg(`Stroke candidate found. ${PHASES.filter(p=>plan.phases[p.key]).length}/4 phases proposed on the video and timeline. Inspect/correct then confirm. ${samples} frames sampled.`);
    }
-  }else{resetPhaseUI();assistMsg(`No reliable stroke clip created (${samples} samples). ${warning}. Keep the full video and correct the ball reference if needed.`);}
+   }else{clearAutoEvidence();resetPhaseUI();assistMsg(`No reliable stroke clip created (${samples} samples). ${warning}. Keep the full video and correct the ball reference if needed.`);}
   showPending();
  }catch(err){if(token===assist.scanId)assistMsg('Auto scan stopped: '+err.message);}
  finally{state.busy=false;$a('assistAuto').disabled=false;
@@ -1307,9 +1315,9 @@ showAutoClip=function(info){previousShowAutoClip(info);if(info?.found&&Number.is
 }}
 // Avoid phantom points from clearing or changing clips; do not carry over edit state.
 const previousLoad=loadVideo;
-loadVideo=async function(file,options){assist.scanId++;resetPhaseUI();resetViewport();return previousLoad(file,options);};
+ loadVideo=async function(file,options){assist.scanId++;clearAutoEvidence();resetPhaseUI();resetViewport();return previousLoad(file,options);};
 const originalRecordForSave=recordForSave;
-recordForSave=function(){const result=originalRecordForSave();result.strokePhases=phaseState.data?structuredClone(phaseState.data.phases):null;result.followThrough=state.followThrough??null;result.reviewClip=phaseState.data?{...phaseState.data.clip}:null;return result;};
+recordForSave=function(){const result=originalRecordForSave();result.strokePhases=phaseState.data?structuredClone(phaseState.data.phases):null;result.followThrough=state.followThrough??null;result.reviewClip=phaseState.data?{...phaseState.data.clip}:null;const proposal=v08?.evidenceProposal;result.evidenceReview={confirmedAt:v08?.evidenceConfirmedAt||null,modelVersion:proposal?.modelVersion||null,automaticPoints:autoEvidencePoints().length,allAutomaticPointsReviewed:autoEvidencePoints().length>0&&autoEvidencePoints().every(p=>p.verifiedByUser),provenance:Object.fromEntries(['putter','ballTrack','face','scale'].filter(key=>proposal?.[key]).map(key=>[key,{confidence:proposal[key].confidence,reason:proposal[key].reason}]))};return result;};
 // Camera workflow remains untouched and uses its existing explicit ROI selection.
 const oldReset=resetMarks;
 resetMarks=function(){oldReset();assist.selected=null;redrawAssist();};
@@ -1325,7 +1333,25 @@ for(const [selector,label] of [['.annotation-panel','Advanced manual landmarks a
 setMode('review');setZoom(1);redrawAssist();
 
 /* Putting Lab v0.8: truly separate live and upload surfaces share a single media/analysis engine. */
-const v08={workspace:'live',source:'live',lastEvidence:null,uploadClip:null,liveClip:null};
+ const v08={workspace:'live',source:'live',lastEvidence:null,uploadClip:null,liveClip:null,evidenceProposal:null,evidenceConfirmedAt:null};
+ function autoEvidencePoints(){return [...state.putterMarks,...state.ballMarks,...state.faceMarks,...state.scaleMarks].filter(p=>p.source==='auto-evidence');}
+ function clearAutoEvidence(){
+  state.putterMarks=state.putterMarks.filter(p=>p.source!=='auto-evidence');state.ballMarks=state.ballMarks.filter(p=>p.source!=='auto-evidence');
+  state.faceMarks=state.faceMarks.filter(p=>p.source!=='auto-evidence');state.scaleMarks=state.scaleMarks.filter(p=>p.source!=='auto-evidence');
+  v08.evidenceProposal=null;v08.evidenceConfirmedAt=null;
+ }
+ function applyAutoEvidence(proposal,ball){
+  clearAutoEvidence();if(!proposal)return;
+  const decorate=p=>({...p,auto:true,verifiedByUser:false,source:'auto-evidence'});
+  if(proposal.putter)state.putterMarks.push(...proposal.putter.points.map(decorate));
+  const ballPoints=proposal.ballTrack?.points?.length?proposal.ballTrack.points:(ball?[{...ball,t:Number.isFinite(proposal.impact)?proposal.impact:ball.t}]:[]);
+  if(ballPoints.length)state.ballMarks.push(...ballPoints.map(decorate));
+  if(proposal.face)state.faceMarks.push(...proposal.face.points.map(decorate));
+  if(proposal.scale&&!state.scaleMarks.some(p=>p.source!=='auto-evidence'))state.scaleMarks.push(...proposal.scale.points.map(decorate));
+  v08.evidenceProposal=proposal;v08.evidenceConfirmedAt=null;
+ }
+ const pointsVerified=points=>points.length>0&&points.every(p=>p.source!=='auto-evidence'||p.verifiedByUser===true);
+ const metricStatus=(value,points=[],needsImpact=false)=>!Number.isFinite(value)?'unavailable':pointsVerified(points)&&(!needsImpact||phaseState.data?.phases.impact?.confirmed)?'verified':'proposed';
 const cameraPanel=document.querySelector('.camera-panel');
 const uploadStage=$a('uploadStage'),liveStage=$a('liveStage');
 const previousWorkspaceNav=nav;
@@ -1367,14 +1393,15 @@ function setCameraProfile(profile){
  renderEvidence();setMetrics();
 }
 $a('captureProfile').addEventListener('change',e=>setCameraProfile(e.target.value));
-function evidenceModel(){
+ function evidenceModel(){
  const isSide=$a('captureProfile').value==='side'&&v08.workspace==='studio';
- const stats=calculate();const ball=assist.pending?.ball||phaseState.data?.ball||state.ballMarks[0]||null;
+  const stats=calculate();const ball=state.ballMarks[0]||assist.pending?.ball||phaseState.data?.ball||null;
  const userImpact=Number.isFinite(state.marks.impact)&&phaseState.data?.phases.impact?.confirmed;
  const candidateImpact=phaseState.data?.phases.impact||null;
- const all=[];
- const push=(label,value,status,reason)=>all.push({label,value,status,reason});
- push('Ball center',ball?`${(ball.x*100).toFixed(1)}% × ${(ball.y*100).toFixed(1)}%`:'—',ball?'proposed':'unavailable',ball?'Image-position suggestion; inspect circle on video.':'No detected ball; retry or select ball once.');
+  const all=[];
+  const push=(label,value,status,reason,provenance='')=>all.push({label,value,status,reason,provenance});
+  const proposal=v08.evidenceProposal,autoBall=state.ballMarks.filter(p=>p.source==='auto-evidence');
+  push('Ball center',ball?`${(ball.x*100).toFixed(1)}% × ${(ball.y*100).toFixed(1)}%`:'—',ball?(pointsVerified(autoBall)?'verified':'proposed'):'unavailable',ball?'Image-position suggestion; inspect every ball circle on video.':'No detected ball; retry or select ball once.',proposal?.ballTrack?.reason||'');
  push('Impact frame',candidateImpact?clock(candidateImpact.t):'—',candidateImpact?.confirmed?'verified':candidateImpact?'proposed':'unavailable',candidateImpact?.confirmed?'Human-confirmed timestamp.':candidateImpact?'Ball-departure candidate, not exact contact.':'No impact candidate yet.');
  if(isSide){
   push('Ball speed','—','unavailable','Side-on pixel-to-metre calibration and tracked frames required.');
@@ -1382,10 +1409,11 @@ function evidenceModel(){
   push('Face at impact','—','unavailable','Side-on camera cannot determine face-to-target angle.');
   push('Putter path / speed','—','unavailable','Putter tracking and calibrated timestamps required.');
  }else{
-  push('Ball speed',Number.isFinite(stats.ballSpeed)?stats.ballSpeed.toFixed(2)+' m/s':'—',Number.isFinite(stats.ballSpeed)?'proposed':'unavailable',Number.isFinite(stats.ballSpeed)?'Calibrated 2D estimate from tracked ball centers; verify source points.':'Requires confirmed ball size, impact time and ≥3 clean post-impact ball tracks.');
-  push('Start line',Number.isFinite(stats.startDeviation)?stats.startDeviation.toFixed(1)+'°':'—',Number.isFinite(stats.startDeviation)?'proposed':'unavailable',Number.isFinite(stats.startDeviation)?'Image-space bearing relative to selected target; inspect tracks.':'Requires stable post-impact ball tracking and a target reference.');
-  push('Club face',Number.isFinite(stats.impactFace)?stats.impactFace.toFixed(1)+'°':'—',Number.isFinite(stats.impactFace)?'proposed':'unavailable',Number.isFinite(stats.impactFace)?'Projected face angle from two marked endpoints at impact.':'Automatic face edge detection not reliable; confirm two visible endpoints.');
-  push('Putter path',Number.isFinite(stats.impactPath)?stats.impactPath.toFixed(1)+'°':'—',Number.isFinite(stats.impactPath)?'proposed':'unavailable',Number.isFinite(stats.impactPath)?'Near-impact fitted 2D tangent from tracked putter head.':'Requires ≥3 consistent near-impact clubhead points and a target line.');
+   const ballSupport=[...state.ballMarks,...state.scaleMarks],faceSupport=state.faceMarks,putterSupport=state.putterMarks;
+   push('Ball speed',Number.isFinite(stats.ballSpeed)?stats.ballSpeed.toFixed(2)+' m/s':'—',metricStatus(stats.ballSpeed,ballSupport,true),Number.isFinite(stats.ballSpeed)?'Calibrated 2D estimate from tracked ball centers; verify source points.':'Requires confirmed ball size, impact time and ≥3 clean post-impact ball tracks.',proposal?.ballTrack?.reason||proposal?.scale?.reason||'');
+   push('Start line',Number.isFinite(stats.startDeviation)?stats.startDeviation.toFixed(1)+'°':'—',metricStatus(stats.startDeviation,state.ballMarks),Number.isFinite(stats.startDeviation)?'Image-space bearing relative to the user-selected target; inspect tracks.':'Requires stable post-impact ball tracking and a target reference.',proposal?.ballTrack?.reason||'');
+   push('Club face',Number.isFinite(stats.impactFace)?stats.impactFace.toFixed(1)+'°':'—',metricStatus(stats.impactFace,faceSupport,true),Number.isFinite(stats.impactFace)?'Projected face angle from two detected or marked endpoints at impact.':'No defensible face edge found; add or correct two visible endpoints.',proposal?.face?.reason||'');
+   push('Putter path',Number.isFinite(stats.impactPath)?stats.impactPath.toFixed(1)+'°':'—',metricStatus(stats.impactPath,putterSupport,true),Number.isFinite(stats.impactPath)?'Near-impact fitted 2D tangent from tracked putter evidence.':'Requires ≥3 consistent near-impact clubhead points and a target line.',proposal?.putter?.reason||'');
   const near=state.putterMarks.filter(q=>Number.isFinite(q.t)&&Number.isFinite(state.marks.impact)&&q.t>=state.marks.impact-.13&&q.t<=state.marks.impact+.012).sort((a,b)=>a.t-b.t);
   let clubSpeed=null;
   if(near.length>=3&&Number.isFinite(stats.scale)&&near.at(-1).t-near[0].t>.025){
@@ -1399,19 +1427,23 @@ function evidenceModel(){
     if(v>.05&&v<5&&residual<Math.max(4,Math.hypot(f.vw,f.vh)*.01))clubSpeed=v;
    }
   }
-  push('Putter speed',Number.isFinite(clubSpeed)?clubSpeed.toFixed(2)+' m/s':'—',Number.isFinite(clubSpeed)?'proposed':'unavailable',Number.isFinite(clubSpeed)?'Regressed near-impact 2D track speed; verify geometry, timing and ball calibration.':'Needs 3 near-impact putter positions and verified distance calibration.');
+   push('Putter speed',Number.isFinite(clubSpeed)?clubSpeed.toFixed(2)+' m/s':'—',metricStatus(clubSpeed,state.putterMarks,true),Number.isFinite(clubSpeed)?'Regressed near-impact 2D track speed; verify geometry, timing and ball calibration.':'Needs 3 near-impact putter positions and verified distance calibration.',proposal?.putter?.reason||proposal?.scale?.reason||'');
  }
  push('Vertical launch','—','unavailable',isSide?'Requires stable side-view ball vertical tracking and a ground-plane reference. Not validated.':'Not observable from a single overhead view.');
  push('Spin / RPM','—','unavailable',isSide?'Track a contrasting mark on the ball at high FPS; feature not yet implemented.':'Overhead movement cannot establish vertical-axis backspin or forward roll.');
  push('Zero skid','—','unavailable',isSide?'Requires synchronized ball-center speed and angular velocity from visible rotating mark. Not yet implemented.':'Cannot measure skid from ball-center travel alone.');
  return all;
 }
-function renderEvidence(){const grid=$a('evidenceGrid');if(!grid)return;const metrics=evidenceModel();grid.replaceChildren();for(const m of metrics){const cell=document.createElement('div');cell.className='evidence-metric';const label=document.createElement('small');label.textContent=m.label;const flag=document.createElement('span');flag.className='evidence-flag '+m.status;flag.textContent=m.status==='verified'?'Verified':m.status==='proposed'?'Candidate':'Unavailable';const val=document.createElement('strong');val.textContent=m.value;const why=document.createElement('span');why.textContent=m.reason;cell.append(label,flag,val,why);grid.append(cell);}v08.lastEvidence=metrics;
+ function renderEvidence(){const grid=$a('evidenceGrid');if(!grid)return;const metrics=evidenceModel();grid.replaceChildren();for(const m of metrics){const cell=document.createElement('div');cell.className='evidence-metric'+(m.status==='verified'?' user-verified':'');const label=document.createElement('small');label.textContent=m.label;const flag=document.createElement('span');flag.className='evidence-flag '+m.status;flag.textContent=m.status==='verified'?'User verified':m.status==='proposed'?'Candidate':'Unavailable';const val=document.createElement('strong');val.textContent=m.value;const why=document.createElement('span');why.textContent=m.reason;cell.append(label,flag,val,why);if(m.provenance){const source=document.createElement('span');source.className='evidence-provenance';source.textContent=m.provenance;cell.append(source);}grid.append(cell);}v08.lastEvidence=metrics;
  const candidates=metrics.filter(m=>m.status==='proposed').length;
- $a('evidenceSummary').textContent=candidates?`${candidates} proposed measurement(s); verify images, timestamps, and physical calibration before using any value for fitting.`:'No defensible numerical measurements yet. Auto-detection will suggest ball location and impact when footage permits; unavailable values remain blank.';
+  $a('evidenceSummary').textContent=candidates?`${candidates} proposed measurement(s); verify images, timestamps, and physical calibration before using any value for fitting.`:metrics.some(m=>m.status==='verified')?'Visible proposals were confirmed by the user. They remain image-plane estimates, not instrument validation.':'No defensible numerical measurements yet. Auto-detection will suggest ball location and impact when footage permits; unavailable values remain blank.';
+  const auto=autoEvidencePoints(),unverified=auto.filter(p=>!p.verifiedByUser);$a('confirmEvidence').disabled=!unverified.length;$a('resetEvidenceConfirmation').disabled=!auto.some(p=>p.verifiedByUser);
+  $a('evidenceConfirmationNote').textContent=v08.evidenceConfirmedAt?`Human review recorded ${new Date(v08.evidenceConfirmedAt).toLocaleTimeString()}. Equipment-grade accuracy is still unverified.`:'Confirm only after scrubbing the impact window and checking every overlaid point. Confirmation records human review; it does not make the result equipment-grade.';
 }
 $a('reviewEvidence').addEventListener('click',()=>{document.querySelector('#annotationAssist')?.scrollIntoView({behavior:'smooth',block:'center'});$a('assistEdit').click();});
 $a('refreshEvidence').addEventListener('click',renderEvidence);
+ $a('confirmEvidence').addEventListener('click',()=>{const points=autoEvidencePoints();if(!points.length)return;for(const p of points)p.verifiedByUser=true;v08.evidenceConfirmedAt=new Date().toISOString();setMetrics();toast('Visible automatic points marked as user-reviewed. Accuracy is still not instrument-validated.');});
+ $a('resetEvidenceConfirmation').addEventListener('click',()=>{for(const p of autoEvidencePoints())p.verifiedByUser=false;v08.evidenceConfirmedAt=null;setMetrics();});
 const previousEvidenceMetrics=setMetrics;
 setMetrics=function(){previousEvidenceMetrics();renderEvidence();};
 const previousEvidencePhase=updatePhaseState;
