@@ -1,0 +1,27 @@
+name: Putting Lab Virtual iPhone Laboratory
+on:
+  push:
+    paths:
+      - 'putting-lab/native-ios/**'
+      - '.github/workflows/puttinglab-iphone-simulator.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  simulated-overhead-replay:
+    name: iPhone simulator — real FrameVision synthetic inputs
+    runs-on: macos-15
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build, boot, replay, and verify
+        run: bash putting-lab/native-ios/tools/run_simulator_ci.sh
+      - name: Save simulator diagnostics and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: puttinglab-virtual-iphone-report
+          path: putting-lab/native-ios/lab-artifacts/
+          if-no-files-found: warn
