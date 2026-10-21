@@ -40,7 +40,7 @@ struct LiveCaptureScreen: View {
                         if let summary = controller.simulatorSummary {
                             Text(summary)
                                 .font(.caption.bold())
-                                .foregroundStyle(controller.simulatorReportPassed == false ? .red : .primary)
+                                .foregroundColor(controller.simulatorReportPassed == false ? Color.red : Color.primary)
                                 .accessibilityIdentifier("simulatorReportSummary")
                         }
                     }.padding(12)
