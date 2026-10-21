@@ -43,6 +43,10 @@ final class CaptureController: NSObject,ObservableObject,AVCaptureVideoDataOutpu
     @Published var clips=ClipLibrary.load()
     @Published var confidenceMessage="Awaiting ball acquisition"
     @Published var errorMessage: String?
+    #if targetEnvironment(simulator)
+    @Published var simulatorSummary: String?
+    @Published var simulatorReportPassed: Bool?
+    #endif
 
     func reloadClips(){onMain{$0.clips=ClipLibrary.load()}}
     func start(mode:VideoMode) {
