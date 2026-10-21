@@ -1,0 +1,58 @@
+// !$*UTF8*$!
+{
+archiveVersion = 1;
+classes = {};
+objectVersion = 56;
+objects = {
+/* Begin PBXBuildFile section */
+9294B3F779FE86416893F7B7 /* CaptureController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BF2095230AEAB94EEB65DCE /* CaptureController.swift */; };
+AF658BD1D1FFA9ACE8875EF0 /* ClipLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = C418112C4DFE18C61164CE39 /* ClipLibrary.swift */; };
+4A5CA91C9305114C571B98E0 /* ClipReviewScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDC4A4893C453272861312BA /* ClipReviewScreen.swift */; };
+494392DAF7450B663F063D4C /* FrameVision.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4DA334D883F52B306D5FB80 /* FrameVision.swift */; };
+144577C83B08DFADCC08DD16 /* LiveCaptureScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25E7380052F683E90774DADD /* LiveCaptureScreen.swift */; };
+906B8959E8D42C803EEED43C /* PuttingLabNativeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF4797E379044E78B4FDD59 /* PuttingLabNativeApp.swift */; };
+F517B23C9537D5EAFC53A6AC /* StrokeCore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 969A923DBF27BD0BC2003EEE /* StrokeCore.swift */; };
+/* End PBXBuildFile section */
+/* Begin PBXFileReference section */
+5BF2095230AEAB94EEB65DCE /* CaptureController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureController.swift; sourceTree = "<group>"; };
+C418112C4DFE18C61164CE39 /* ClipLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipLibrary.swift; sourceTree = "<group>"; };
+BDC4A4893C453272861312BA /* ClipReviewScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipReviewScreen.swift; sourceTree = "<group>"; };
+E4DA334D883F52B306D5FB80 /* FrameVision.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrameVision.swift; sourceTree = "<group>"; };
+25E7380052F683E90774DADD /* LiveCaptureScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveCaptureScreen.swift; sourceTree = "<group>"; };
+DCF4797E379044E78B4FDD59 /* PuttingLabNativeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PuttingLabNativeApp.swift; sourceTree = "<group>"; };
+969A923DBF27BD0BC2003EEE /* StrokeCore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrokeCore.swift; sourceTree = "<group>"; };
+81F31879437340D5CD6ED968 /* PuttingLabNative.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PuttingLabNative.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+/* Begin PBXGroup section */
+AA0596BBDB4DCC95D5D4F10C = {isa = PBXGroup; children = (596B73E0DA7F040AAF99B86E /* PuttingLabNative */, 6F7199ED7B63CDA338A0FB82 /* Products */, ); sourceTree = "<group>"; };
+596B73E0DA7F040AAF99B86E /* PuttingLabNative */ = {isa = PBXGroup; children = (5BF2095230AEAB94EEB65DCE /* CaptureController.swift */, C418112C4DFE18C61164CE39 /* ClipLibrary.swift */, BDC4A4893C453272861312BA /* ClipReviewScreen.swift */, E4DA334D883F52B306D5FB80 /* FrameVision.swift */, 25E7380052F683E90774DADD /* LiveCaptureScreen.swift */, DCF4797E379044E78B4FDD59 /* PuttingLabNativeApp.swift */, 969A923DBF27BD0BC2003EEE /* StrokeCore.swift */, ); path = PuttingLabNative; sourceTree = "<group>"; };
+6F7199ED7B63CDA338A0FB82 /* Products */ = {isa = PBXGroup; children = (81F31879437340D5CD6ED968 /* PuttingLabNative.app */, ); name = Products; sourceTree = "<group>"; };
+/* End PBXGroup section */
+/* Begin PBXNativeTarget section */
+22568365A543A67728DC0745 /* PuttingLabNative */ = {isa = PBXNativeTarget; buildConfigurationList = 31107D0D11ECF16E15FA6E65; buildPhases = (9261F04E014268C1FB6C1C5E /* Sources */, 0B0EAC1C67A2F2EB9E6EB6F7 /* Frameworks */, B04831CC372489EBF0287850 /* Resources */, ); buildRules = (); dependencies = (); name = PuttingLabNative; productName = PuttingLabNative; productReference = 81F31879437340D5CD6ED968 /* PuttingLabNative.app */; productType = "com.apple.product-type.application"; };
+/* End PBXNativeTarget section */
+/* Begin PBXProject section */
+94215354DD3CFF03EF494C89 /* Project object */ = {isa = PBXProject; attributes = {BuildIndependentTargetsInParallel = 1; LastUpgradeCheck = 1600; TargetAttributes = {22568365A543A67728DC0745 = {CreatedOnToolsVersion = 16.0;}; }; }; buildConfigurationList = 9F6B1A7BCFF26D263B843F95; compatibilityVersion = "Xcode 14.0"; developmentRegion = en; hasScannedForEncodings = 0; knownRegions = (en, Base); mainGroup = AA0596BBDB4DCC95D5D4F10C; productRefGroup = 6F7199ED7B63CDA338A0FB82; projectDirPath = ""; projectRoot = ""; targets = (22568365A543A67728DC0745 /* PuttingLabNative */, ); };
+/* End PBXProject section */
+/* Begin PBXSourcesBuildPhase section */
+9261F04E014268C1FB6C1C5E /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (9294B3F779FE86416893F7B7 /* CaptureController.swift in Sources */, AF658BD1D1FFA9ACE8875EF0 /* ClipLibrary.swift in Sources */, 4A5CA91C9305114C571B98E0 /* ClipReviewScreen.swift in Sources */, 494392DAF7450B663F063D4C /* FrameVision.swift in Sources */, 144577C83B08DFADCC08DD16 /* LiveCaptureScreen.swift in Sources */, 906B8959E8D42C803EEED43C /* PuttingLabNativeApp.swift in Sources */, F517B23C9537D5EAFC53A6AC /* StrokeCore.swift in Sources */, ); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXSourcesBuildPhase section */
+/* Begin PBXFrameworksBuildPhase section */
+0B0EAC1C67A2F2EB9E6EB6F7 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXFrameworksBuildPhase section */
+/* Begin PBXResourcesBuildPhase section */
+B04831CC372489EBF0287850 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXResourcesBuildPhase section */
+/* Begin XCBuildConfiguration section */
+FDD3EA28A0B1309668A442B2 /* Debug (project) */ = {isa = XCBuildConfiguration; buildSettings = {ALWAYS_SEARCH_USER_PATHS = NO; CLANG_ENABLE_MODULES = YES; SDKROOT = iphoneos; IPHONEOS_DEPLOYMENT_TARGET = 17.0; SWIFT_VERSION = 5.0; SWIFT_STRICT_CONCURRENCY = minimal; GCC_OPTIMIZATION_LEVEL = 0; ENABLE_TESTABILITY = YES;}; name = Debug; };
+8DB23D5B0AA80A48AA651830 /* Release (project) */ = {isa = XCBuildConfiguration; buildSettings = {ALWAYS_SEARCH_USER_PATHS = NO; CLANG_ENABLE_MODULES = YES; SDKROOT = iphoneos; IPHONEOS_DEPLOYMENT_TARGET = 17.0; SWIFT_VERSION = 5.0; SWIFT_STRICT_CONCURRENCY = minimal; GCC_OPTIMIZATION_LEVEL = s; ENABLE_TESTABILITY = NO;}; name = Release; };
+86680E473A81A55C52C0A72D /* Debug (target) */ = {isa = XCBuildConfiguration; buildSettings = {GENERATE_INFOPLIST_FILE = YES; INFOPLIST_KEY_NSCameraUsageDescription = "Camera frames are analyzed locally to detect putting stroke candidates and generate review clips."; INFOPLIST_KEY_UIFileSharingEnabled = YES; INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES; INFOPLIST_KEY_UIApplicationSupportsDocumentBrowser = NO; INFOPLIST_KEY_UILaunchScreen_Generation = YES; PRODUCT_BUNDLE_IDENTIFIER = com.myleschopra.puttinglabnative; PRODUCT_NAME = "$(TARGET_NAME)"; TARGETED_DEVICE_FAMILY = "1"; CODE_SIGN_STYLE = Automatic; SWIFT_VERSION = 5.0;}; name = Debug; };
+FAE000AE36B4E50C28275D58 /* Release (target) */ = {isa = XCBuildConfiguration; buildSettings = {GENERATE_INFOPLIST_FILE = YES; INFOPLIST_KEY_NSCameraUsageDescription = "Camera frames are analyzed locally to detect putting stroke candidates and generate review clips."; INFOPLIST_KEY_UIFileSharingEnabled = YES; INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES; INFOPLIST_KEY_UIApplicationSupportsDocumentBrowser = NO; INFOPLIST_KEY_UILaunchScreen_Generation = YES; PRODUCT_BUNDLE_IDENTIFIER = com.myleschopra.puttinglabnative; PRODUCT_NAME = "$(TARGET_NAME)"; TARGETED_DEVICE_FAMILY = "1"; CODE_SIGN_STYLE = Automatic; SWIFT_VERSION = 5.0;}; name = Release; };
+/* End XCBuildConfiguration section */
+/* Begin XCConfigurationList section */
+9F6B1A7BCFF26D263B843F95 = {isa = XCConfigurationList; buildConfigurations = (FDD3EA28A0B1309668A442B2, 8DB23D5B0AA80A48AA651830, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+31107D0D11ECF16E15FA6E65 = {isa = XCConfigurationList; buildConfigurations = (86680E473A81A55C52C0A72D, FAE000AE36B4E50C28275D58, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+/* End XCConfigurationList section */
+};
+rootObject = 94215354DD3CFF03EF494C89;
+}

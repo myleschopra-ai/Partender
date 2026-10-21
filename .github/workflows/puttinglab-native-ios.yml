@@ -1,0 +1,19 @@
+name: Putting Lab Native iOS
+on:
+  push:
+    paths:
+      - 'putting-lab/native-ios/**'
+      - '.github/workflows/puttinglab-native-ios.yml'
+  pull_request:
+    paths:
+      - 'putting-lab/native-ios/**'
+      - '.github/workflows/puttinglab-native-ios.yml'
+jobs:
+  build-and-test:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate native app compilation (iOS Simulator, unsigned)
+        run: xcodebuild -project putting-lab/native-ios/iOS/PuttingLabNative.xcodeproj -scheme PuttingLabNative -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
+      - name: Run portable stroke core tests
+        run: cd putting-lab/native-ios/Core && swift test
