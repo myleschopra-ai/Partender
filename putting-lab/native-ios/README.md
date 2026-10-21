@@ -28,7 +28,8 @@ The existing `partendinglab.myleschopra.workers.dev` remains the separate Web Up
 - `swift test` on Linux: **9/9** deterministic stroke-core tests pass.
 - Five **encoded 120-fps synthetic videos**, analyzed using a test-only color-segmentation observation extractor, then passed to the real Swift detector: **5/5 expected scenario classifications**; two putts flagged, shake/occlusion/low light withheld. Synthetic candidate impacts: 1.50 s and 1.65 s against simulated impact 1.50 s.
 - All iOS Swift sources pass Swift parser syntax checks; Xcode `.pbxproj` passes `plutil -lint`.
-- NOT validated: iOS SDK **typechecking/compilation**, live camera capture, format support, HEVC recording throughput, video export on the iPhone, device temperature, end-to-end latency, or physical measurement accuracy. This environment has no macOS/Xcode/iPhone.
+- **macOS iOS Simulator compilation passed:** https://github.com/myleschopra-ai/Partender/actions/runs/39661586143 (unsigned Xcode build and portable Swift core tests both succeeded).
+- NOT validated: physical-device installation, live camera capture, format support, HEVC recording throughput, video export on the iPhone, device temperature, end-to-end latency, or physical measurement accuracy. This environment has no macOS/Xcode/iPhone.
 
 ## Key caveats
 
