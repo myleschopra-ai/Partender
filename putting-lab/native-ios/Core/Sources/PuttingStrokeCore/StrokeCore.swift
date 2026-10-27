@@ -19,9 +19,12 @@ public struct FrameEvidence: Codable, Sendable {
     public var cameraMotion: Double
     public var ballConfidence: Double
     public var putterConfidence: Double
-    public init(time: Double, ball: ImagePoint?, putter: ImagePoint?, ballDiameterPixels: Double?, cameraMotion: Double = 0, ballConfidence: Double = 1, putterConfidence: Double = 1) {
+    /// Whether the originally acquired ball is STILL visible at its address location.
+    /// nil means not measured; true explicitly blocks an outward-ball departure candidate.
+    public var referenceStillVisible: Bool?
+    public init(time: Double, ball: ImagePoint?, putter: ImagePoint?, ballDiameterPixels: Double?, cameraMotion: Double = 0, ballConfidence: Double = 1, putterConfidence: Double = 1, referenceStillVisible: Bool? = nil) {
         self.time = time; self.ball = ball; self.putter = putter; self.ballDiameterPixels = ballDiameterPixels
-        self.cameraMotion = cameraMotion; self.ballConfidence = ballConfidence; self.putterConfidence = putterConfidence
+        self.cameraMotion = cameraMotion; self.ballConfidence = ballConfidence; self.putterConfidence = putterConfidence; self.referenceStillVisible = referenceStillVisible
     }
 }
 
@@ -79,13 +82,15 @@ public final class StrokeEventDetector {
     private var departedCount = 0
     private var departureBeginning: Double?
     private var lastNearPutterTime: Double?
+    private var lastDepartedBall: ImagePoint?
+    private var outwardTrack: [ImagePoint] = []
 
     public init() {}
     public func reset() {
         candidate = nil; observations.removeAll(keepingCapacity: true); rejectionReason = nil
         referenceBall = nil; stableCount = 0; baselineWindow.removeAll(); baselineReady = false; missingBallFrames = 0; firstMotionTime = nil; putterApproachCount = 0
         initialPutter = nil; lastPutter = nil; lastTime = -.infinity; departedCount = 0
-        departureBeginning = nil; lastNearPutterTime = nil
+        departureBeginning = nil; lastNearPutterTime = nil; lastDepartedBall = nil; outwardTrack.removeAll()
     }
     @discardableResult public func consume(_ f: FrameEvidence) -> StrokeEvents? {
         guard f.time > lastTime, f.time.isFinite else { return candidate }
@@ -96,7 +101,7 @@ public final class StrokeEventDetector {
         if f.cameraMotion > maxCameraMotion {
             rejectionReason = "Camera moved or the image changed globally"
             stableCount = 0; baselineWindow.removeAll(); baselineReady = false
-            putterApproachCount = 0; departedCount = 0
+            putterApproachCount = 0; departedCount = 0; departureBeginning = nil; lastDepartedBall = nil; outwardTrack.removeAll()
             lastPutter = nil; firstMotionTime = nil
             return candidate
         }
@@ -119,7 +124,7 @@ public final class StrokeEventDetector {
                 rejectionReason = "Ball occluded for too long to establish a departure"
                 referenceBall = nil;stableCount = 0;baselineReady = false;baselineWindow.removeAll()
                 putterApproachCount = 0;firstMotionTime = nil;lastPutter = nil
-                departedCount = 0;departureBeginning = nil;lastNearPutterTime = nil
+                departedCount = 0;departureBeginning = nil;lastNearPutterTime = nil;lastDepartedBall = nil;outwardTrack.removeAll()
             }
             return nil
         }
@@ -162,14 +167,35 @@ public final class StrokeEventDetector {
             if initialPutter == nil { initialPutter = p }
         }
         let departureThreshold = max(3.0, diameter * 0.48)
-        if ballShift > departureThreshold && f.ballConfidence >= 0.7 {
-            if departureBeginning == nil { departureBeginning = f.time }
-            departedCount += 1
-        } else if ballShift <= departureThreshold {
-            // At high fps, transient false ball detections should not trigger a clip.
-            departedCount = 0; departureBeginning = nil
+        let atAddressStillVisible = f.referenceStillVisible == true
+        // Never infer that the ball departed while its original image is STILL present.
+        // A moving putter, hand, shadow, or second practice ball is not outbound evidence.
+        let outbound = ballShift > departureThreshold && f.ballConfidence >= 0.7 && !atAddressStillVisible
+        if outbound {
+            let minAdvance = max(0.25, diameter * 0.035)
+            var advancing = true
+            if let previous = lastDepartedBall {
+                let priorDistance = previous.distance(to: origin)
+                let step = ball.distance(to: previous)
+                let vx = ball.x - previous.x, vy = ball.y - previous.y
+                let radialDot = vx * (previous.x - origin.x) + vy * (previous.y - origin.y)
+                advancing = ballShift > priorDistance + minAdvance &&
+                    step >= minAdvance && step <= max(20.0, diameter * 7.0) &&
+                    radialDot >= -diameter * diameter * 0.03
+            }
+            if advancing {
+                if departureBeginning == nil { departureBeginning = f.time }
+                departedCount += 1
+                lastDepartedBall = ball
+                outwardTrack.append(ball)
+                if outwardTrack.count > 8 { outwardTrack.removeFirst() }
+            } else {
+                departedCount = 0; departureBeginning = nil; lastDepartedBall = nil; outwardTrack.removeAll()
+            }
+        } else {
+            departedCount = 0; departureBeginning = nil; lastDepartedBall = nil; outwardTrack.removeAll()
         }
-        guard departedCount >= 3, putterApproachCount >= 2,
+        guard departedCount >= 3, outwardTrack.count >= 3, putterApproachCount >= 2,
               let near = lastNearPutterTime, f.time - near <= 0.22,
               let departure = departureBeginning else { return nil }
         // All times are proposals. Transition is only offered on strong observed reversal.
