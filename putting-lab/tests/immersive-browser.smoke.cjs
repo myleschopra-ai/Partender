@@ -20,6 +20,13 @@ const { chromium }=require('/tmp/puttinglab-playwright/node_modules/playwright')
       assert.ok(box,'Video has no bounding rectangle');
       assert.ok(Math.abs(box.width-viewport.width)<2&&Math.abs(box.height-viewport.height)<2,
         'Video is not full screen on '+label+': '+JSON.stringify(box));
+      // A mounted phone may show an inverted picture. Rotate only the feed,
+      // never the overlaid buttons, and retain marker-coordinate consistency.
+      await page.locator('#plRotate').click();
+      assert.equal(await page.evaluate(()=>document.body.classList.contains('pl-rotate180')),true,'Preview rotation missing');
+      assert.equal(await page.locator('#plRotate').getAttribute('aria-pressed'),'true');
+      await page.locator('#plRotate').click();
+      assert.equal(await page.evaluate(()=>document.body.classList.contains('pl-rotate180')),false);
       await page.locator('#plGear').click();
       assert.equal(await page.locator('#plSettings').isVisible(),true,'Settings drawer did not open');
       await page.locator('#plQuality').selectOption('reliable');
