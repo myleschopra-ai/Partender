@@ -1,6 +1,8 @@
 'use strict';
 const assert=require('node:assert/strict');
-const {PuttingTemporalDetector}=require('../public/temporal-detector.js');
+require('../public/temporal-detector.js');
+const PuttingTemporalDetector=globalThis.PuttingTemporalDetector;
+assert.equal(typeof PuttingTemporalDetector,'function','Browser module should expose the detector globally');
 const W=192,H=108,X=96,Y=55,FPS=30;
 function rect(g,x,y,r,value){for(let yy=Math.max(0,Math.floor(y-r));yy<Math.min(H,Math.ceil(y+r+1));yy++)for(let xx=Math.max(0,Math.floor(x-r));xx<Math.min(W,Math.ceil(x+r+1));xx++)g[yy*W+xx]=value;}
 function ball(g,x,y,r,value){for(let yy=Math.max(0,Math.floor(y-r));yy<Math.min(H,Math.ceil(y+r+1));yy++)for(let xx=Math.max(0,Math.floor(x-r));xx<Math.min(W,Math.ceil(x+r+1));xx++)if((xx-x)**2+(yy-y)**2<r*r)g[yy*W+xx]=value;}
