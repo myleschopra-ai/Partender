@@ -1,0 +1,73 @@
+name: Putting Lab Web Temporal Validation
+on:
+  push:
+    branches: ['feature/putting-lab-immersive-temporal-v1']
+    paths:
+      - 'putting-lab/**'
+      - '.github/workflows/puttinglab-web-temporal.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  detector-and-browser-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate actual deployed JavaScript modules
+        run: |
+          node --check putting-lab/public/temporal-detector.js
+          node --check putting-lab/public/live-overlay.js
+          node putting-lab/tests/temporal-detector.test.cjs
+      - name: Validate HTML script parsing and linked assets
+        run: |
+          python3 - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+          import subprocess
+          root=Path('putting-lab/public')
+          html=(root/'index.html').read_text()
+          assert html==(Path('putting-lab')/'index.html').read_text(), 'Published/source HTML differ'
+          class Verify(HTMLParser):
+              def __init__(self):
+                  super().__init__(); self.scripts=[];self.active=False;self.buf=[];self.refs=[]
+              def handle_starttag(self,tag,attrs):
+                  opts=dict(attrs)
+                  if tag=='script':
+                      self.active=True;self.buf=[]
+                      if opts.get('src'):self.refs.append(opts['src'])
+                  if tag=='link' and opts.get('rel')=='stylesheet':self.refs.append(opts['href'])
+              def handle_data(self,data):
+                  if self.active:self.buf.append(data)
+              def handle_endtag(self,tag):
+                  if tag=='script' and self.active:
+                      code=''.join(self.buf)
+                      if code.strip():self.scripts.append(code)
+                      self.active=False
+          parser=Verify();parser.feed(html)
+          for ref in parser.refs:
+              assert (root/ref.replace('./','')).is_file(), f'Missing public asset: {ref}'
+          for i,script in enumerate(parser.scripts):
+              filename=Path('/tmp')/f'putting-inline-{i}.js';filename.write_text(script)
+              subprocess.run(['node','--check',str(filename)],check=True)
+          assert len(parser.scripts)>=3, 'Missing original app scripts'
+          assert './live-overlay.js' in parser.refs and 'window.PuttingTemporalDetector' in html
+          print('PASS:',len(parser.scripts),'inline scripts; all linked local assets exist')
+          PY
+      - name: Chromium mobile portrait and landscape visual smoke test
+        run: |
+          npm install --prefix /tmp/puttinglab-playwright --no-fund --no-audit playwright@1.56.1
+          /tmp/puttinglab-playwright/node_modules/.bin/playwright install chromium --with-deps
+          if command -v ffmpeg >/dev/null; then
+            ffmpeg -hide_banner -loglevel error -f lavfi -i color=c=green:s=320x180:r=30:d=2 -c:v libx264 -pix_fmt yuv420p -y /tmp/putting-lab-ui-fixture.mp4
+          fi
+          python3 -m http.server 8765 --bind 127.0.0.1 --directory putting-lab/public >/tmp/puttinglab-http.log 2>&1 &
+          sleep 2
+          node putting-lab/tests/immersive-browser.smoke.cjs
+      - name: Upload mobile UI screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: puttinglab-immersive-mobile-smoke
+          path: putting-lab/ui-evidence/
+          if-no-files-found: warn
