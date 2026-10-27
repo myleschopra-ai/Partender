@@ -1,0 +1,33 @@
+/* v1 Camera-first Putting Lab. Full viewport video with minimal floating controls. */
+#plLaunch{display:flex;width:100%;align-items:center;justify-content:center;min-height:52px;margin:0 0 10px;padding:12px;border:1px solid #bbef7f;border-radius:12px;color:#152216;background:#c9ff72;font-size:14px;font-weight:850}
+body.pl-immersive{overflow:hidden!important}
+body.pl-immersive #videoShell{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;max-width:none!important;min-width:0!important;min-height:0!important;aspect-ratio:auto!important;margin:0!important;border:0!important;border-radius:0!important;z-index:999!important;background:#040806!important}
+body.pl-immersive #videoShell video{object-fit:contain!important}
+body.pl-immersive #videoBadge,body.pl-immersive #liveIndicator,body.pl-immersive #recordIndicator{display:none!important}
+#plControls{position:absolute;inset:0;z-index:24;display:flex;flex-direction:column;justify-content:space-between;pointer-events:none;color:#fff}
+#plControls[hidden],#plSettings[hidden]{display:none!important}
+.pl-top{display:flex;align-items:start;gap:8px;padding:calc(env(safe-area-inset-top) + 8px) calc(env(safe-area-inset-right) + 12px) 0 calc(env(safe-area-inset-left) + 12px);background:linear-gradient(#000b,transparent)}
+.pl-status{max-width:min(57vw,430px);display:grid;gap:3px;background:#0a1e16de;border:1px solid #ffffff35;border-radius:12px;padding:8px 11px;backdrop-filter:blur(12px)}
+.pl-status strong{color:#c9ff72;font-size:11px;letter-spacing:.1em}.pl-status span{font-size:11px;line-height:1.4;color:#f5fff0}
+.pl-topbuttons{display:flex;gap:6px;margin-left:auto;pointer-events:auto}
+#plControls button,#plControls select{min-height:44px;border:1px solid #c6e4c777;border-radius:11px;background:#13251de8;color:#fff;padding:9px 11px;font-size:12px;font-weight:740;backdrop-filter:blur(12px)}
+#plControls button.primary{background:#c9ff72;border-color:#c9ff72;color:#102017}
+#plControls button.danger{background:#973e38;border-color:#f6a6a1;color:#fff}
+#plControls button:disabled{opacity:.35}
+.pl-bottom{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:7px;padding:30px calc(env(safe-area-inset-right) + 12px) calc(env(safe-area-inset-bottom) + 11px) calc(env(safe-area-inset-left) + 12px);background:linear-gradient(transparent,#000e)}
+.pl-buttons{display:flex;flex-wrap:wrap;gap:7px;pointer-events:auto}
+#plControls .pl-review{display:none}
+#plControls.pl-reviewing .pl-live{display:none}
+#plControls.pl-reviewing .pl-review{display:flex}
+#plControls .pl-scrub{display:none;gap:7px;align-items:center;width:100%;pointer-events:auto;background:#0b1b13de;padding:8px;border-radius:10px}
+#plControls.pl-reviewing .pl-scrub{display:flex}
+.pl-scrub input{flex:1;min-width:40px;accent-color:#c9ff72;touch-action:pan-x}
+.pl-scrub small{font-size:11px;font-variant-numeric:tabular-nums;min-width:68px;text-align:right;color:#fff}
+.pl-buttons.pl-review-tools{width:100%;justify-content:center}
+.pl-review-tools select{max-width:120px}
+#plSettings{position:absolute;top:calc(env(safe-area-inset-top) + 68px);right:calc(env(safe-area-inset-right) + 11px);width:min(345px,calc(100vw - 22px));max-height:calc(100dvh - 105px);overflow:auto;pointer-events:auto;background:#0b2016f9;border:1px solid #769871;border-radius:13px;padding:15px;box-shadow:0 15px 50px #000c}
+#plSettings h3{margin:0 0 12px;font-size:16px}#plSettings label{display:grid;gap:6px;color:#d8ecd1;font-size:12px;margin-bottom:10px}
+#plSettings select{width:100%;margin-top:5px}
+#plSettings p{font-size:11px;line-height:1.5;color:#c6d8c4;margin:11px 0}
+@media(max-width:700px){.pl-status{max-width:49vw;padding:7px 9px}.pl-status span{font-size:10px}.pl-bottom{gap:5px}.pl-buttons{gap:5px}}
+@media(orientation:landscape) and (max-height:430px){.pl-status span{display:none}.pl-top{padding-top:5px}.pl-bottom{padding-bottom:4px}.pl-settings{top:48px}}
