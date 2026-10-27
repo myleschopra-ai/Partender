@@ -42,7 +42,9 @@ class PuttingTemporalDetector{
      if(!seen[j]&&g[(t+yy)*this.w+l+xx]>=threshold){seen[j]=1;queue.push(j);}
     }
    }
-   if(count>=4&&count<=areaCap)out.push({x:sumx/count,y:sumy/count,area:count,box:(maxx-minx+1)*(maxy-miny+1)});
+   const bw=maxx-minx+1,bh=maxy-miny+1;
+   if(count>=4&&count<=areaCap&&Math.max(bw,bh)/Math.max(1,Math.min(bw,bh))<2.3)
+    out.push({x:sumx/count,y:sumy/count,area:count,box:bw*bh});
   }
   return out;
  }
@@ -82,7 +84,19 @@ class PuttingTemporalDetector{
  }
  sample(g,time){
   if(!g||g.length!==this.w*this.h||!Number.isFinite(time))return {status:'invalid-frame'};
-  if(this.lastTime!==null&&time>this.lastTime){this.frames.push(time-this.lastTime);if(this.frames.length>40)this.frames.shift();}
+  if(this.lastTime!==null){
+   const dt=time-this.lastTime;
+   if(dt<=0)return{status:'duplicate-frame'};
+   if(dt>300){
+    // Camera paused, browser dropped frames, or iOS changed the stream.
+    // Abandon stale identity instead of joining unrelated image evidence.
+    this.lastTime=time;this.previous=g.slice();this.ball=null;this.reference=null;
+    this.stable=0;this.lastPutter=-Infinity;this.outbound=null;this.outboundCount=0;
+    this.departureStart=null;this.trace=[];this.frames=[];
+    return{status:'stabilizing',reason:'Frame gap: reacquiring stationary ball'};
+   }
+   this.frames.push(dt);if(this.frames.length>40)this.frames.shift();
+  }
   this.lastTime=time;
   if(!this.previous){this.previous=g.slice();return {status:'stabilizing',frames:0};}
   const global=this.motion(g,true).ratio;
@@ -117,8 +131,13 @@ class PuttingTemporalDetector{
   const moved=(departed||this.outbound)?this.outboundBall(g):null;
   if(moved&&recent){
    const old=this.outbound;
-   const forward=!old||moved.area>0&&movedDistance(moved,b)>=movedDistance(old,b)-b.radius*.3
-    &&(moved.x-old.x)*(old.x-b.x)+(moved.y-old.y)*(old.y-b.y)>=-b.radius*b.radius;
+   // A bright stationary decoy, a shadow, or an uncovered second golf ball
+   // cannot be counted as multiple outbound positions just because it persists.
+   const forward=!old||(moved.area>0 &&
+    movedDistance(moved,b)>=movedDistance(old,b)+Math.max(0.8,b.radius*.22) &&
+    movedDistance(moved,old)>=Math.max(0.8,b.radius*.22) &&
+    movedDistance(moved,old)<Math.max(32,this.w*.22) &&
+    (moved.x-old.x)*(old.x-b.x)+(moved.y-old.y)*(old.y-b.y)>=-b.radius*b.radius*.05);
    if(forward){if(!this.outboundCount)this.departureStart=time;this.outbound=moved;this.outboundCount++;}
    else{this.outboundCount=0;this.outbound=null;this.departureStart=null;}
   }else if(!moved){this.outboundCount=0;this.outbound=null;this.departureStart=null;}
