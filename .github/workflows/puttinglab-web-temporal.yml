@@ -51,6 +51,6 @@ jobs:
               filename=Path('/tmp')/f'putting-inline-{i}.js';filename.write_text(script)
               subprocess.run(['node','--check',str(filename)],check=True)
           assert len(parser.scripts)>=3, 'Missing original app scripts'
-          assert 'plLaunch' in html and 'window.PuttingTemporalDetector' in html
+          assert './live-overlay.js' in parser.refs and 'window.PuttingTemporalDetector' in html
           print('PASS:',len(parser.scripts),'inline scripts; all linked local assets exist')
           PY
