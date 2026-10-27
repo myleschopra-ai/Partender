@@ -54,3 +54,20 @@ jobs:
           assert './live-overlay.js' in parser.refs and 'window.PuttingTemporalDetector' in html
           print('PASS:',len(parser.scripts),'inline scripts; all linked local assets exist')
           PY
+      - name: Chromium mobile portrait and landscape visual smoke test
+        run: |
+          npm install --prefix /tmp/puttinglab-playwright --no-fund --no-audit playwright@1.56.1
+          /tmp/puttinglab-playwright/node_modules/.bin/playwright install chromium --with-deps
+          if command -v ffmpeg >/dev/null; then
+            ffmpeg -hide_banner -loglevel error -f lavfi -i color=c=green:s=320x180:r=30:d=2 -c:v libx264 -pix_fmt yuv420p -y /tmp/putting-lab-ui-fixture.mp4
+          fi
+          python3 -m http.server 8765 --bind 127.0.0.1 --directory putting-lab/public >/tmp/puttinglab-http.log 2>&1 &
+          sleep 2
+          node putting-lab/tests/immersive-browser.smoke.cjs
+      - name: Upload mobile UI screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: puttinglab-immersive-mobile-smoke
+          path: putting-lab/ui-evidence/
+          if-no-files-found: warn
