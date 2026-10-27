@@ -31,3 +31,8 @@ body.pl-immersive #videoBadge,body.pl-immersive #liveIndicator,body.pl-immersive
 #plSettings p{font-size:11px;line-height:1.5;color:#c6d8c4;margin:11px 0}
 @media(max-width:700px){.pl-status{max-width:49vw;padding:7px 9px}.pl-status span{font-size:10px}.pl-bottom{gap:5px}.pl-buttons{gap:5px}}
 @media(orientation:landscape) and (max-height:430px){.pl-status span{display:none}.pl-top{padding-top:5px}.pl-bottom{padding-bottom:4px}.pl-settings{top:48px}}
+
+/* Rotate only the media and annotation surface. Hit-testing is inverse-mapped in index.html. */
+body.pl-rotate180 #videoShell video,body.pl-rotate180 #videoShell #overlay{transform:rotate(180deg)!important;transform-origin:center!important}
+#plRotate[aria-pressed="true"]{color:#c9ff72!important;border-color:#c9ff72!important}
+@media(max-width:400px){.pl-topbuttons{gap:3px}#plControls .pl-topbuttons button{font-size:10px;padding:9px 7px}}
