@@ -376,7 +376,7 @@ const helpers={putter:'Pause the clip. Tap the same identifiable point on the pu
 $$('[data-tool]').forEach(el=>el.addEventListener('click',()=>{state.tool=el.dataset.tool;$$('[data-tool]').forEach(e=>e.classList.toggle('active',e===el));$('toolHelp').textContent=helpers[state.tool];setMetrics();}));
 function videoFit(){const r=$('videoShell').getBoundingClientRect(),w=r.width,h=r.height;const vw=video.videoWidth||16,vh=video.videoHeight||9;const scale=Math.min(w/vw,h/vh);return {width:w,height:h,vw,vh,left:(w-vw*scale)/2,top:(h-vh*scale)/2,drawWidth:vw*scale,drawHeight:vh*scale};}
 function toScreen(p,fit){return{x:fit.left+p.x*fit.drawWidth,y:fit.top+p.y*fit.drawHeight};}
-function fromEvent(e){const box=overlay.getBoundingClientRect(),fit=videoFit();const x=(e.clientX-box.left-fit.left)/fit.drawWidth,y=(e.clientY-box.top-fit.top)/fit.drawHeight;return x>=0&&x<=1&&y>=0&&y<=1?{x,y,t:video.currentTime}:null;}
+function fromEvent(e){const box=overlay.getBoundingClientRect(),fit=videoFit();let x=(e.clientX-box.left-fit.left)/fit.drawWidth,y=(e.clientY-box.top-fit.top)/fit.drawHeight;if(document.body.classList.contains('pl-rotate180')){x=1-x;y=1-y;}return x>=0&&x<=1&&y>=0&&y<=1?{x,y,t:video.currentTime}:null;}
 overlay.addEventListener('pointerdown',e=>{if(state.mode!=='review'||state.busy)return;video.pause();const p=fromEvent(e);if(!p)return;switch(state.tool){case'putter':state.putterMarks.push(p);break;case'head':state.headMarks.push(p);break;case'face':if(state.faceMarks.length===2)state.faceMarks=[];state.faceMarks.push(p);break;case'ball':state.ballMarks.push(p);break;case'target':state.target=p;break;case'scale':if(state.scaleMarks.length===2)state.scaleMarks=[];state.scaleMarks.push(p);break;}setMetrics();});
 $('undoPointBtn').addEventListener('click',()=>{if(state.tool==='putter')state.putterMarks.pop();if(state.tool==='head')state.headMarks.pop();if(state.tool==='face')state.faceMarks.pop();if(state.tool==='ball')state.ballMarks.pop();if(state.tool==='target')state.target=null;if(state.tool==='scale')state.scaleMarks.pop();setMetrics();});
 $('clearMarks').addEventListener('click',()=>{if(confirm('Clear all annotations and timeline marks for the current clip?'))resetMarks();});
@@ -835,13 +835,13 @@ class ImpactCandidateDetector {
   }
 }
 window.PuttingImpactDetector=ImpactCandidateDetector;
-const smartCapture={roi:null,picking:false,armed:false,timer:null,postTimer:null,started:0,baseline:null,triggered:false,done:false,detector:null,pending:null,samples:0,reason:null};
+const smartCapture={roi:null,picking:false,armed:false,timer:null,postTimer:null,started:0,baseline:null,triggered:false,done:false,detector:null,pending:null,samples:0,reason:null,framesSkipped:0,lastPresented:null,processingMs:0};
 const motionCanvas=document.createElement('canvas'),motionContext=motionCanvas.getContext('2d',{willReadFrequently:true});
 function smartMessage(message){$('smartStatus').textContent=message;}
 function updateROIInput(){$('videoShell').classList.toggle('live-roi',state.mode==='live'&&smartCapture.picking);redraw();}
 function chooseBallZone(){if(state.mode!=='live'){toast('First open the live camera.',true);return;}if(smartCapture.armed){toast('Cancel detection before moving the ball zone.',true);return;}smartCapture.picking=true;updateROIInput();smartMessage('Tap the CENTER of the ball in the overhead live video, then keep the phone stationary.');}
 $('pickROI').addEventListener('click',chooseBallZone);
-overlay.addEventListener('pointerdown',e=>{if(state.mode!=='live'||!smartCapture.picking)return;const box=overlay.getBoundingClientRect(),f=liveFit(),x=(e.clientX-box.left-f.left)/f.drawWidth,y=(e.clientY-box.top-f.top)/f.drawHeight;if(x<0||x>1||y<0||y>1)return;smartCapture.roi={x,y};smartCapture.picking=false;updateROIInput();smartMessage('Ball center selected. Tap Arm automatic detection, then putt after the green indicator.');},true);
+overlay.addEventListener('pointerdown',e=>{if(state.mode!=='live'||!smartCapture.picking)return;const box=overlay.getBoundingClientRect(),f=liveFit();let x=(e.clientX-box.left-f.left)/f.drawWidth,y=(e.clientY-box.top-f.top)/f.drawHeight;if(document.body.classList.contains('pl-rotate180')){x=1-x;y=1-y;}if(x<0||x>1||y<0||y>1)return;smartCapture.roi={x,y};smartCapture.picking=false;updateROIInput();smartMessage('Ball center selected. Tap Arm automatic detection, then putt after the green indicator.');},true);
 function disarmSmart(message){
  clearTimeout(smartCapture.timer);clearTimeout(smartCapture.postTimer);
  if(smartCapture.frameCallback&&typeof live.cancelVideoFrameCallback==='function')live.cancelVideoFrameCallback(smartCapture.frameCallback);
@@ -889,7 +889,7 @@ $('smartArm').addEventListener('click',()=>{
  if(!smartCapture.roi){chooseBallZone();return;}
  if(!window.MediaRecorder){toast('Automatic capture requires MediaRecorder. Try Safari HTTPS or video upload.',true);return;}
  if(state.recorder?.state==='recording'){toast('Stop the manual recording first.',true);return;}
- smartCapture.pending=null;smartCapture.done=false;smartCapture.triggered=false;smartCapture.samples=0;smartCapture.detector=null;
+ smartCapture.pending=null;smartCapture.done=false;smartCapture.triggered=false;smartCapture.samples=0;smartCapture.framesSkipped=0;smartCapture.lastPresented=null;smartCapture.processingMs=0;smartCapture.detector=null;
  $('angle').value='overhead';renderGuide();
  $('angle').value='overhead';renderGuide();
  $('recordBtn').click();
@@ -897,9 +897,22 @@ $('smartArm').addEventListener('click',()=>{
  smartCapture.armed=true;smartCapture.started=performance.now();$('smartArm').disabled=true;$('smartCancel').disabled=false;
  document.querySelector('.smart-capture')?.classList.add('is-armed');
  smartMessage('Recording started BEFORE the stroke. Calibrating ball zone…');
- function loop(){if(!smartCapture.armed)return;
-  const now=performance.now();
-  if(!smartCapture.lastSampleAt||now-smartCapture.lastSampleAt>=32){smartCapture.lastSampleAt=now;sampleLiveFrame();}
+ function loop(now,frameInfo){if(!smartCapture.armed)return;
+  // A callback represents a compositor-presented frame, not a promised camera FPS.
+  if(Number.isFinite(frameInfo?.presentedFrames)){
+   if(Number.isFinite(smartCapture.lastPresented))smartCapture.framesSkipped+=Math.max(0,frameInfo.presentedFrames-smartCapture.lastPresented-1);
+   smartCapture.lastPresented=frameInfo.presentedFrames;
+  }
+  const ts=performance.now();
+  // Adapt sampling work to the actual main-thread image processing cost.
+  const minimumMs=Math.max(16,Math.min(65,smartCapture.processingMs*1.4));
+  if(!smartCapture.lastSampleAt||ts-smartCapture.lastSampleAt>=minimumMs){
+   smartCapture.lastSampleAt=ts;
+   sampleLiveFrame();
+   const spent=performance.now()-ts;
+   smartCapture.processingMs=smartCapture.processingMs?smartCapture.processingMs*.85+spent*.15:spent;
+  }
+  if(!smartCapture.armed)return;
   if(typeof live.requestVideoFrameCallback==='function')smartCapture.frameCallback=live.requestVideoFrameCallback(loop);
   else smartCapture.timer=setTimeout(loop,34);
  }
