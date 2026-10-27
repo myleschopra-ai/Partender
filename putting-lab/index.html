@@ -110,6 +110,8 @@ body.workspace-live #tab-live .studio-layout{max-width:950px}body.workspace-live
 /* v0.8.1: capture capability negotiation: overhead primary, sensor modes are not guaranteed */
 .capture-quality{max-width:950px;background:#12251c;border:1px solid #4b654b;border-radius:12px;padding:13px;margin:0 0 14px}.capture-quality-head,.capture-quality-row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.capture-quality-head strong{font-size:14px}.capture-quality-target{font-size:11px;font-weight:800;color:#bee3a7;background:#2b4830;border:1px solid #517459;border-radius:7px;padding:6px 9px}.capture-quality-row{justify-content:flex-start;margin:12px 0 8px}.capture-quality-row label{display:grid;gap:6px;font-size:11px;color:#c3d5c4;flex:1;min-width:170px}.capture-quality-row select{max-width:410px;width:100%;min-height:42px;border-radius:8px;padding:9px;background:#193023;color:#efffec;border:1px solid #5d765b}.capture-quality-row button{min-height:42px}.capture-quality-readout{font-size:12px;font-weight:750;border-left:3px solid #93c772;background:#1c3324;padding:9px 11px;margin-top:8px;color:#e5f8d9;overflow-wrap:anywhere}.capture-quality-readout.is-limited{border-color:#d5ad73;color:#f2d9ae}.capture-quality-disclaimer{font-size:11px;color:#b4cbb6;line-height:1.55;margin:9px 0 0}
 @media(max-width:700px){.capture-quality{padding:11px}.capture-quality-row{display:grid;grid-template-columns:minmax(0,1fr)}.capture-quality-row button{width:100%}}
+
+<link rel="stylesheet" href="./live-overlay.css"/>
 </style>
 
   
@@ -245,6 +247,7 @@ body.workspace-live #tab-live .studio-layout{max-width:950px}body.workspace-live
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <div class="modal-backdrop" id="modal" hidden><div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal-head"><h2 id="modalTitle">Saved stroke</h2><button id="modalClose" aria-label="Close dialog">✕</button></div><div id="modalContent"></div></div></div>
 <script src="./evidence-core.js"></script>
+<script src="./temporal-detector.js"></script>
 <script>
 /* PUTTING / LAB v0.1 — local-first, dependency-free video review. */
 'use strict';
@@ -840,19 +843,21 @@ function chooseBallZone(){if(state.mode!=='live'){toast('First open the live cam
 $('pickROI').addEventListener('click',chooseBallZone);
 overlay.addEventListener('pointerdown',e=>{if(state.mode!=='live'||!smartCapture.picking)return;const box=overlay.getBoundingClientRect(),f=liveFit(),x=(e.clientX-box.left-f.left)/f.drawWidth,y=(e.clientY-box.top-f.top)/f.drawHeight;if(x<0||x>1||y<0||y>1)return;smartCapture.roi={x,y};smartCapture.picking=false;updateROIInput();smartMessage('Ball center selected. Tap Arm automatic detection, then putt after the green indicator.');},true);
 function disarmSmart(message){
- clearTimeout(smartCapture.timer);clearTimeout(smartCapture.postTimer);smartCapture.armed=false;smartCapture.picking=false;smartCapture.detector=null;
+ clearTimeout(smartCapture.timer);clearTimeout(smartCapture.postTimer);
+ if(smartCapture.frameCallback&&typeof live.cancelVideoFrameCallback==='function')live.cancelVideoFrameCallback(smartCapture.frameCallback);
+ smartCapture.frameCallback=null;smartCapture.armed=false;smartCapture.picking=false;smartCapture.detector=null;
  $('smartArm').disabled=false;$('smartCancel').disabled=true;$('smartArm').textContent='◎ Arm auto detection';
  document.querySelector('.smart-capture')?.classList.remove('is-armed');
  if(message)smartMessage(message);updateROIInput();
 }
 function sampleLiveFrame(){
  if(!smartCapture.armed||!state.stream||state.mode!=='live'||!live.videoWidth)return;
- const w=192,h=Math.max(60,Math.round(w*live.videoHeight/live.videoWidth));
+ const w=320,h=Math.max(80,Math.round(w*live.videoHeight/live.videoWidth));
  if(motionCanvas.width!==w||motionCanvas.height!==h){motionCanvas.width=w;motionCanvas.height=h;}
  try{motionContext.drawImage(live,0,0,w,h);}catch(e){return;}
  const pix=motionContext.getImageData(0,0,w,h).data,g=new Uint8Array(w*h);
  for(let i=0;i<g.length;i++)g[i]=Math.round(pix[i*4]*.299+pix[i*4+1]*.587+pix[i*4+2]*.114);
- if(!smartCapture.detector||smartCapture.detector.w!==w||smartCapture.detector.h!==h)smartCapture.detector=new ImpactCandidateDetector(w,h,smartCapture.roi);
+ if(!smartCapture.detector||smartCapture.detector.w!==w||smartCapture.detector.h!==h)smartCapture.detector=new window.PuttingTemporalDetector(w,h,smartCapture.roi);
  const finding=smartCapture.detector.sample(g,performance.now());smartCapture.samples++;
  if(finding.status==='stabilizing')smartMessage('Calibrating ball brightness and camera stability… Keep phone still.');
  else if(finding.status==='camera-moving')smartMessage('Camera moved or lighting shifted. Re-stabilizing; secure the overhead mount.');
@@ -892,8 +897,15 @@ $('smartArm').addEventListener('click',()=>{
  smartCapture.armed=true;smartCapture.started=performance.now();$('smartArm').disabled=true;$('smartCancel').disabled=false;
  document.querySelector('.smart-capture')?.classList.add('is-armed');
  smartMessage('Recording started BEFORE the stroke. Calibrating ball zone…');
- function loop(){if(!smartCapture.armed)return;sampleLiveFrame();smartCapture.timer=setTimeout(loop,70);}
- smartCapture.timer=setTimeout(loop,180);
+ function loop(){if(!smartCapture.armed)return;
+  const now=performance.now();
+  if(!smartCapture.lastSampleAt||now-smartCapture.lastSampleAt>=32){smartCapture.lastSampleAt=now;sampleLiveFrame();}
+  if(typeof live.requestVideoFrameCallback==='function')smartCapture.frameCallback=live.requestVideoFrameCallback(loop);
+  else smartCapture.timer=setTimeout(loop,34);
+ }
+ smartCapture.lastSampleAt=0;
+ if(typeof live.requestVideoFrameCallback==='function')smartCapture.frameCallback=live.requestVideoFrameCallback(loop);
+ else smartCapture.timer=setTimeout(loop,85);
 });
 $('smartCancel').addEventListener('click',()=>{if(!smartCapture.armed)return;smartCapture.pending=null;disarmSmart('Automatic detection canceled. Video saved for manual review.');if(state.recorder?.state==='recording')$('recordBtn').click();});
 $('recordBtn').addEventListener('click',()=>{if(smartCapture.armed&&state.recorder?.state==='recording'&&!smartCapture.done){smartCapture.pending=null;disarmSmart('Manually stopped. Video retained for review.');}},{capture:true});
@@ -971,7 +983,7 @@ window.PuttingAnnotationAssist=assist;
 const $a=id=>document.getElementById(id);
 const panel=$a('annotationAssist');
 const assistCanvas=document.createElement('canvas'),assistContext=assistCanvas.getContext('2d',{willReadFrequently:true});
-function getAssistFrame(){const w=192,h=Math.max(60,Math.round(w*(video.videoHeight||9)/(video.videoWidth||16)));assistCanvas.width=w;assistCanvas.height=h;assistContext.drawImage(video,0,0,w,h);const bytes=assistContext.getImageData(0,0,w,h).data;const gray=new Uint8Array(w*h);for(let i=0;i<gray.length;i++)gray[i]=Math.round(.299*bytes[i*4]+.587*bytes[i*4+1]+.114*bytes[i*4+2]);return{gray,w,h};}
+function getAssistFrame(){const w=320,h=Math.max(80,Math.round(w*(video.videoHeight||9)/(video.videoWidth||16)));assistCanvas.width=w;assistCanvas.height=h;assistContext.drawImage(video,0,0,w,h);const bytes=assistContext.getImageData(0,0,w,h).data;const gray=new Uint8Array(w*h);for(let i=0;i<gray.length;i++)gray[i]=Math.round(.299*bytes[i*4]+.587*bytes[i*4+1]+.114*bytes[i*4+2]);return{gray,w,h};}
 const assistMsg=message=>{$a('assistStatus').textContent=message;};
 const assists=()=>state.mode==='review';
 const arrays={putter:'putterMarks',head:'headMarks',face:'faceMarks',ball:'ballMarks',scale:'scaleMarks'};
@@ -1247,14 +1259,14 @@ async function analyzeVideo({impactSeed=null,ballSeed=null,fromLive=false}={}){
  const token=++assist.scanId,resume=video.currentTime,duration=video.duration;
  video.pause();state.busy=true;$a('assistAuto').disabled=true;$a('assistProposals').classList.remove('visible');assist.pending=null;
  try{
-  const maxT=Math.min(duration-.02,20),step=Math.max(1/18,maxT/280);
+  const maxT=Math.min(duration-.02,20),step=Math.max(1/24,maxT/440);
   const startT=Number.isFinite(impactSeed)?Math.max(.02,impactSeed-2.5):.08;
   await seekForTracking(Math.min(startT,maxT));const firstFrame=getSmallFrame();
   const originalBall=ballSeed||state.ballMarks[0]||(!fromLive?null:smartCapture.roi);
   const foundBall=originalBall?{x:originalBall.x,y:originalBall.y,t:startT,score:100}:brightBallCandidate(firstFrame);
   if(!foundBall){resetPhaseUI();assistMsg('Could not locate the ball confidently. Select its center once and retry. No markers were guessed.');return;}
-  const roi={x:foundBall.x,y:foundBall.y};const h=Math.max(60,Math.round(192*(video.videoHeight||9)/(video.videoWidth||16)));
-  const det=Number.isFinite(impactSeed)?null:new ImpactCandidateDetector(192,h,roi);
+  const roi={x:foundBall.x,y:foundBall.y};const h=Math.max(80,Math.round(320*(video.videoHeight||9)/(video.videoWidth||16)));
+  const det=Number.isFinite(impactSeed)?null:new window.PuttingTemporalDetector(320,h,roi);
   let candidate=Number.isFinite(impactSeed)?{time:impactSeed*1000,status:'candidate',sampleMs:null}:null;
    let cameraMotion=0,samples=0,firstApproach=null,previous=null,trace=[],brightCandidates=[];
   let limit=Number.isFinite(impactSeed)?Math.min(maxT,impactSeed+1.3):maxT;
@@ -1457,5 +1469,6 @@ renderEvidence();
 })();
 
 </script>
+<script src="./live-overlay.js"></script>
 </body>
 </html>
