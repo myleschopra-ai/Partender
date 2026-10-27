@@ -128,8 +128,27 @@ final class FrameVision {
                 lastMovingPatch=patch
             }
         }
+        // Test the ORIGINAL ball anchor independently of the moving-ball detector.
+        // If the ball is visibly still at address, motion around it cannot be a stroke.
+        // This is a conservative luminance/contrast guard, not identity validation.
+        var referenceStillVisible: Bool?
+        if let original = anchor {
+            let cx = max(10, min(smallWidth-11, Int((original.x/sxScale).rounded())))
+            let cy = max(10, min(smallHeight-11, Int((original.y/syScale).rounded())))
+            var centerSum = 0
+            for dy in -2...2 {
+                for dx in -2...2 { centerSum += Int(data[(cy+dy)*smallWidth+cx+dx]) }
+            }
+            let centerMean = Double(centerSum)/25.0
+            let offsets = [(-9,0),(9,0),(0,-9),(0,9),(-7,-7),(7,7),(-7,7),(7,-7)]
+            let ringMean = offsets.reduce(0.0) { total, offset in
+                total + Double(data[(cy+offset.1)*smallWidth+cx+offset.0])
+            }/Double(offsets.count)
+            referenceStillVisible = centerMean >= 165 && centerMean-ringMean >= 35
+        }
         previous=data
         return FrameEvidence(time:timestamp,ball:ball,putter:patch,ballDiameterPixels:ballDiameter,
-                             cameraMotion:motion,ballConfidence:confidence,putterConfidence:patchConfidence)
+                             cameraMotion:motion,ballConfidence:confidence,putterConfidence:patchConfidence,
+                             referenceStillVisible:referenceStillVisible)
     }
 }
