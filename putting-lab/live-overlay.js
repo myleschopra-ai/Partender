@@ -14,7 +14,7 @@
 
   const controls = document.createElement('div');
   controls.id = 'plControls'; controls.hidden = true;
-  controls.innerHTML = '<div class="pl-top"><div class="pl-status" role="status" aria-live="polite"><strong id="plTitle">CAMERA · IDLE</strong><span id="plMessage">Open the camera, then tap the actual ball in the video.</span></div><div class="pl-topbuttons"><button id="plGear" type="button">⚙ Settings</button><button id="plExit" type="button">✕ Exit</button></div></div><div class="pl-bottom"><div class="pl-scrub"><input id="plTimeline" type="range" min="0" max="1000" step="1" aria-label="Scrub stroke video"><small id="plTimestamp">0.000 s</small></div><div class="pl-buttons pl-live"><button id="plCamera" type="button">◉ Camera</button><button id="plBall" type="button">⌖ Set ball</button><button id="plArm" class="primary" type="button">◎ Arm detection</button><button id="plStop" class="danger" type="button" hidden>■ Stop</button></div><div class="pl-buttons pl-review"><button id="plBackward" type="button">− Frame</button><button id="plPlayback" type="button">▶ Play</button><button id="plForward" type="button">+ Frame</button><button id="plImpact" class="primary" type="button">⌖ Correct impact</button><button id="plNextStroke" type="button">↺ Next putt</button></div><div class="pl-buttons pl-review pl-review-tools"><select id="plMarker" aria-label="Choose marker type"><option value="ball">Ball</option><option value="putter">Putter</option><option value="target">Target</option><option value="face">Face edge</option><option value="scale">Ball width</option></select><button id="plMove" type="button">↔ Move</button><button id="plAdd" type="button">＋ Add</button><button id="plReview" type="button">✓ Review</button><button id="plSave" type="button">↓ Save</button></div></div><div id="plSettings" hidden role="dialog" aria-label="Putting camera settings"><h3>Capture &amp; analysis</h3><label>Camera preference<select id="plQuality"><option value="impact">Impact priority</option><option value="fps">Prefer frame rate</option><option value="detail">Prefer resolution</option><option value="reliable">Reliable fallback</option></select></label><button id="plApply" type="button">↻ Recheck camera</button><button id="plAnalyze" type="button">◎ Analyze recorded clip</button><p id="plCameraReadout">No camera stream active.</p><p>Temporal motion analysis uses consecutive frames at the browser-delivered rate; the result is a candidate, not a measurement-grade impact. Safari cannot guarantee true high-speed frames.</p><button id="plDoneSettings" class="primary" type="button">Done</button></div>';
+  controls.innerHTML = '<div class="pl-top"><div class="pl-status" role="status" aria-live="polite"><strong id="plTitle">CAMERA · IDLE</strong><span id="plMessage">Open the camera, then tap the actual ball in the video.</span></div><div class="pl-topbuttons"><button id="plRotate" type="button" aria-label="Rotate video 180 degrees" aria-pressed="false">⟳ 180°</button><button id="plGear" type="button">⚙ Settings</button><button id="plExit" type="button">✕ Exit</button></div></div><div class="pl-bottom"><div class="pl-scrub"><input id="plTimeline" type="range" min="0" max="1000" step="1" aria-label="Scrub stroke video"><small id="plTimestamp">0.000 s</small></div><div class="pl-buttons pl-live"><button id="plCamera" type="button">◉ Camera</button><button id="plBall" type="button">⌖ Set ball</button><button id="plArm" class="primary" type="button">◎ Arm detection</button><button id="plStop" class="danger" type="button" hidden>■ Stop</button></div><div class="pl-buttons pl-review"><button id="plBackward" type="button">− Frame</button><button id="plPlayback" type="button">▶ Play</button><button id="plForward" type="button">+ Frame</button><button id="plImpact" class="primary" type="button">⌖ Correct impact</button><button id="plNextStroke" type="button">↺ Next putt</button></div><div class="pl-buttons pl-review pl-review-tools"><select id="plMarker" aria-label="Choose marker type"><option value="ball">Ball</option><option value="putter">Putter</option><option value="target">Target</option><option value="face">Face edge</option><option value="scale">Ball width</option></select><button id="plMove" type="button">↔ Move</button><button id="plAdd" type="button">＋ Add</button><button id="plReview" type="button">✓ Review</button><button id="plSave" type="button">↓ Save</button></div></div><div id="plSettings" hidden role="dialog" aria-label="Putting camera settings"><h3>Capture &amp; analysis</h3><label>Camera preference<select id="plQuality"><option value="impact">Impact priority</option><option value="fps">Prefer frame rate</option><option value="detail">Prefer resolution</option><option value="reliable">Reliable fallback</option></select></label><button id="plApply" type="button">↻ Recheck camera</button><button id="plAnalyze" type="button">◎ Analyze recorded clip</button><p id="plCameraReadout">No camera stream active.</p><p>Temporal motion analysis uses consecutive frames at the browser-delivered rate; the result is a candidate, not a measurement-grade impact. Safari cannot guarantee true high-speed frames.</p><button id="plDoneSettings" class="primary" type="button">Done</button></div>';
   shell.append(controls);
 
   const click = id => { const b = $(id); if (!b || b.disabled) return false; b.click(); return true; };
@@ -37,7 +37,12 @@
     $('plBall').disabled = !camera || armed;
     $('plArm').disabled = !camera || armed;
     $('plStop').hidden = !armed;
-    $('plCameraReadout').textContent = $('qualityStatus')?.textContent || 'No camera stream.';
+    const captureQuality=$('qualityStatus')?.textContent || 'No camera stream.';
+    const n=smartCapture.samples||0,ms=performance.now()-(smartCapture.started||0);
+    const observed=(smartCapture.armed&&n>3&&ms>500)?(n*1000/ms).toFixed(1):'—';
+    const skipped=smartCapture.framesSkipped||0;
+    $('plCameraReadout').textContent=captureQuality+' | Detector '+observed+' processed fps · '+skipped+' compositor frames skipped. Recorded video may differ.';
+    $('plCameraReadout').style.color=smartCapture.armed&&observed!=='—'&&Number(observed)<22?'#ffd29c':'#c6d8c4';
     $('plQuality').value = $('qualityPriority').value;
     const seek = $('seekBar'), timeline = $('plTimeline');
     timeline.min = seek.min; timeline.max = seek.max;
@@ -59,6 +64,11 @@
   }
 
   on('plExit', hide);
+  on('plRotate',()=>{
+    const rotated=document.body.classList.toggle('pl-rotate180');
+    $('plRotate').setAttribute('aria-pressed',String(rotated));
+    window.dispatchEvent(new Event('resize'));
+  });
   launch.addEventListener('click', () => { show(); if (state.mode === 'empty') click('emptyCamera'); });
   on('plGear', () => { $('plSettings').hidden = !$('plSettings').hidden; });
   on('plDoneSettings', () => { $('plSettings').hidden = true; });
