@@ -1008,10 +1008,11 @@ function activeTimePoint(p){if(state.tool==='target'||state.tool==='scale')retur
 function userPoint(e){const b=overlay.getBoundingClientRect(),fit=videoFit();const z=assist.zoom;const w=$a('videoShell').getBoundingClientRect().width,h=$a('videoShell').getBoundingClientRect().height;
  // The element's client rect expands with CSS zoom. Undo that scale before mapping to the original video frame.
  const xx=(e.clientX-b.left)*w/Math.max(1,b.width),yy=(e.clientY-b.top)*h/Math.max(1,b.height);
- const x=(xx-fit.left)/fit.drawWidth,y=(yy-fit.top)/fit.drawHeight;
+ let x=(xx-fit.left)/fit.drawWidth,y=(yy-fit.top)/fit.drawHeight;
+ if(document.body.classList.contains('pl-rotate180')){x=1-x;y=1-y;}
  return x>=0&&x<=1&&y>=0&&y<=1?{x,y,t:video.currentTime}:null;
 }
-function screenDistance(p,e){const f=videoFit(),b=overlay.getBoundingClientRect();const w=$a('videoShell').clientWidth,h=$a('videoShell').clientHeight;const q=toScreen(p,f);const px=b.left+q.x*b.width/w,py=b.top+q.y*b.height/h;return Math.hypot(e.clientX-px,e.clientY-py);}
+function screenDistance(p,e){const f=videoFit(),b=overlay.getBoundingClientRect();const w=$a('videoShell').clientWidth,h=$a('videoShell').clientHeight;const q=toScreen(p,f),rotated=document.body.classList.contains('pl-rotate180');const px=b.left+(rotated?w-q.x:q.x)*b.width/w,py=b.top+(rotated?h-q.y:q.y)*b.height/h;return Math.hypot(e.clientX-px,e.clientY-py);}
 function targets(){if(state.tool==='target')return state.target?[{kind:'target',index:0,p:state.target}]:[];
  const a=listForTool();return (a||[]).map((p,index)=>({kind:state.tool,index,p})).filter(o=>activeTimePoint(o.p));}
 function selectNear(e){const found=targets().map(o=>({...o,d:screenDistance(o.p,e)})).sort((a,b)=>a.d-b.d)[0];return found&&found.d<=26?{kind:found.kind,index:found.index}:null;}
